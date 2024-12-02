@@ -10,11 +10,6 @@ class Program
     {
         List<int> firstList = new List<int>();
         List<int> secondList = new List<int>();
-        int minFirst;
-        int minSecond;
-        int distance;
-
-        int totalDistance = 0;
 
         if (_cookieSessionHeader == null)
         {
@@ -25,17 +20,7 @@ class Program
         {
             string historianslists = await GetInput(_url);
             SeparateList(historianslists, ref firstList, ref secondList);
-            while (firstList.Count > 0)
-            {
-                minFirst = firstList.Min();
-                minSecond = secondList.Min();
-                distance = minFirst >= minSecond ? minFirst - minSecond : minSecond - minFirst;
-
-                totalDistance += distance;
-                firstList.Remove(minFirst);
-                secondList.Remove(minSecond);
-            }
-            Console.WriteLine($"Total Distance : {totalDistance}");
+            Console.WriteLine($"Total Distance : {GetTotalDistance(firstList, secondList)}");
         }
         catch (HttpRequestException ex)
         {
@@ -76,6 +61,20 @@ class Program
                 throw new SplitException("There was not an equal amount of id in both list");
             }
         }
+    }
+
+    private static int GetTotalDistance(List<int> left, List<int> right)
+    {
+        int distance = 0;
+
+        left.Sort();
+        right.Sort();
+
+        for (int i = 0; i < left.Count(); i++)
+        {
+            distance += Math.Abs(left[i] - right[i]);
+        }
+        return distance;
     }
 
     public class SplitException : Exception
