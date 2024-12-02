@@ -33,7 +33,7 @@ class Program
     {
         List<int> left = new List<int>();
         List<int> right = new List<int>();
-        Dictionary<int, int> right_counter = new Dictionary<int, int>();
+        DefaultDictionary<int, int> right_counter = new DefaultDictionary<int, int>(() => 0);
 
         if (_cookieSessionHeader == null)
         {
@@ -44,8 +44,8 @@ class Program
         {
             string historianslists = await GetInput(_url);
             SeparateList(historianslists, ref left, ref right);
-            Console.WriteLine($"Total Distance : {GetDistanceAndCounter(left, right, ref right_counter)}");
-            //Console.WriteLine($"Total Distance : {GetSimilarityScore(left, right_counter)}");
+            Console.WriteLine($"Distance    : {GetDistanceAndCounter(left, right, ref right_counter)}");
+            Console.WriteLine($"Similarity  : {GetSimilarityScore(left, right_counter)}");
         }
         catch (HttpRequestException ex)
         {
@@ -88,7 +88,7 @@ class Program
         }
     }
 
-    private static int GetDistanceAndCounter(List<int> left, List<int> right, ref Dictionary<int, int> right_counter)
+    private static int GetDistanceAndCounter(List<int> left, List<int> right, ref DefaultDictionary<int, int> right_counter)
     {
         int distance = 0;
 
@@ -97,24 +97,19 @@ class Program
 
         for (int i = 0; i < left.Count(); i++)
         {
-            // Ajoute un compteur a chaque element croise a droite
-            // parcourir toute la gauche et check chaque element son compteur a droite
             right_counter[right[i]] += 1;
             distance += Math.Abs(left[i] - right[i]);
         }
         return distance;
     }
 
-    private static int GetSimilarityScore(List<int> left, Dictionary<int, int> right_counter)
+    private static int GetSimilarityScore(List<int> left, DefaultDictionary<int, int> right_counter)
     {
         int similarityScore = 0;
 
         foreach (int id in left)
         {
-            if (right_counter.ContainsKey(id))
-            {
-                similarityScore += id * right_counter[id];
-            }
+            similarityScore += id * right_counter[id];
         }
 
         return similarityScore;
