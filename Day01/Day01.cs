@@ -1,5 +1,28 @@
 using System.Net.Http.Headers;
 
+public class DefaultDictionary<TKey, TValue> : Dictionary<TKey, TValue> where TKey : notnull
+{
+    private Func<TValue> _defaultFactory;
+
+    public DefaultDictionary(Func<TValue> defaultFactory)
+    {
+        _defaultFactory = defaultFactory;
+    }
+
+    public new TValue this[TKey key]
+    {
+        get
+        {
+            if (!ContainsKey(key))
+            {
+                this[key] = _defaultFactory();
+            }
+            return base[key];
+        }
+        set { base[key] = value; }
+    }
+}
+
 class Program
 {
     private static readonly HttpClient _client = new HttpClient();
@@ -8,8 +31,9 @@ class Program
 
     private static async Task Main(string[] args)
     {
-        List<int> firstList = new List<int>();
-        List<int> secondList = new List<int>();
+        List<int> left = new List<int>();
+        List<int> right = new List<int>();
+        Dictionary<int, int> right_counter = new Dictionary<int, int>();
 
         if (_cookieSessionHeader == null)
         {
@@ -19,8 +43,9 @@ class Program
         try
         {
             string historianslists = await GetInput(_url);
-            SeparateList(historianslists, ref firstList, ref secondList);
-            Console.WriteLine($"Total Distance : {GetTotalDistance(firstList, secondList)}");
+            SeparateList(historianslists, ref left, ref right);
+            Console.WriteLine($"Total Distance : {GetDistanceAndCounter(left, right, ref right_counter)}");
+            //Console.WriteLine($"Total Distance : {GetSimilarityScore(left, right_counter)}");
         }
         catch (HttpRequestException ex)
         {
@@ -45,7 +70,7 @@ class Program
         return await response.Content.ReadAsStringAsync();
     }
 
-    private static void SeparateList(string historianslists, ref List<int> firstList, ref List<int> secondList)
+    private static void SeparateList(string historianslists, ref List<int> left, ref List<int> right)
     {
         foreach (string line in historianslists.Split("\n", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries))
         {
@@ -53,8 +78,8 @@ class Program
 
             if (parts.Length == 2)
             {
-                firstList.Add(int.Parse(parts[0]));
-                secondList.Add(int.Parse(parts[1]));
+                left.Add(int.Parse(parts[0]));
+                right.Add(int.Parse(parts[1]));
             }
             else
             {
@@ -63,7 +88,7 @@ class Program
         }
     }
 
-    private static int GetTotalDistance(List<int> left, List<int> right)
+    private static int GetDistanceAndCounter(List<int> left, List<int> right, ref Dictionary<int, int> right_counter)
     {
         int distance = 0;
 
@@ -72,9 +97,27 @@ class Program
 
         for (int i = 0; i < left.Count(); i++)
         {
+            // Ajoute un compteur a chaque element croise a droite
+            // parcourir toute la gauche et check chaque element son compteur a droite
+            right_counter[right[i]] += 1;
             distance += Math.Abs(left[i] - right[i]);
         }
         return distance;
+    }
+
+    private static int GetSimilarityScore(List<int> left, Dictionary<int, int> right_counter)
+    {
+        int similarityScore = 0;
+
+        foreach (int id in left)
+        {
+            if (right_counter.ContainsKey(id))
+            {
+                similarityScore += id * right_counter[id];
+            }
+        }
+
+        return similarityScore;
     }
 
     public class SplitException : Exception
