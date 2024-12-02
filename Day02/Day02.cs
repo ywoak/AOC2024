@@ -3,143 +3,66 @@
     private static void Main()
     {
         string[] reports = File.ReadAllLines("reports.txt");
-        int safeReport = 0;
-        int safeDampenerReport = 0;
-        int mistake = 0;
+        int safeReports = 0;
 
         foreach (string report in reports)
         {
-            string[] levels = report.Split(" ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-            // if (IsReportSafe(report))
-            // {
-            //     safeReport++;
-            // }
-            if (IsDampenerSafe(levels, mistake))
+            string[] levels = report.Split(' ', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+
+            if (IsReportSafe(levels))
             {
-                Console.WriteLine(report);
-                safeDampenerReport++;
+                safeReports++;
+            }
+            else if (IsReportSafeWithDampener(levels))
+            {
+                safeReports++;
             }
         }
-        Console.WriteLine($"Number of safe report -> {safeReport} out of -> {reports.Count()} total");
-        Console.WriteLine($"Number of safe report with dampener suystem -> {safeDampenerReport} out of -> {reports.Count()} total");
+
+        Console.WriteLine($"Number of safe reports -> {safeReports} out of {reports.Length} total");
     }
 
-    private static bool IsReportSafe(string report)
+    private static bool IsReportSafe(string[] levels)
     {
-        string direction;
+        string direction = null;
 
-        string[] levels = report.Split(" ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-
-        if (levels[0] != null && levels[1] != null)
+        for (int i = 0; i < levels.Length - 1; i++)
         {
-            direction = int.Parse(levels[0]) > int.Parse(levels[1]) ? "Descending" : "Ascending";
-        }
-        else
-        {
-            throw new Exception("Something's wrong with the report");
-        }
+            int currentLevel = int.Parse(levels[i]);
+            int nextLevel = int.Parse(levels[i + 1]);
+            int difference = Math.Abs(currentLevel - nextLevel);
 
-        for (int i = 0; i < levels.Count() - 1; i++)
-        {
-            int level = int.Parse(levels[i]);
-            int next_level;
-            int difference;
-
-            if (levels[i + 1] != null)
+            if (difference < 1 || difference > 3)
             {
-                next_level = int.Parse(levels[i + 1]);
-                difference = Math.Abs(level - next_level);
-
-                if (direction == "Ascending" && level > next_level)
-                {
-                    return false;
-                }
-                else if (direction == "Descending" && level < next_level)
-                {
-                    return false;
-                }
-
-                if (difference > 3 || difference == 0)
-                {
-                    return false;
-                }
-
+                return false;
             }
-        }
-        return true;
-    }
 
-    private static bool SafeCheck(int level, int next_level, string direction)
-    {
-        int difference = Math.Abs(level - next_level);
-
-        if (direction == "Ascending" && level > next_level)
-        {
-            return false;
-        }
-        else if (direction == "Descending" && level < next_level)
-        {
-            return false;
-        }
-
-        if (difference > 3 || difference == 0)
-        {
-            return false;
+            if (direction == null)
+            {
+                direction = currentLevel < nextLevel ? "Ascending" : "Descending";
+            }
+            else
+            {
+                if ((direction == "Ascending" && currentLevel > nextLevel) || (direction == "Descending" && currentLevel < nextLevel))
+                {
+                    return false;
+                }
+            }
         }
 
         return true;
     }
 
-    private static bool IsDampenerSafe(string[] levels, int mistake)
+    private static bool IsReportSafeWithDampener(string[] levels)
     {
-        string direction;
-
-        if (levels[0] != null && levels[1] != null)
+        for (int i = 0; i < levels.Length; i++)
         {
-            direction = int.Parse(levels[0]) > int.Parse(levels[1]) ? "Descending" : "Ascending";
-            Console.WriteLine($"direction -> {direction}");
-        }
-        else
-        {
-            throw new Exception("Something's wrong with the report");
-        }
-
-        for (int i = 0; i < levels.Count() - 1; i++)
-        {
-            int level = int.Parse(levels[i]);
-            int next_level;
-
-            Console.WriteLine($"level {level} has been parsed");
-            if (i + 1 < levels.Count())
+            var newLevels = levels.Where((val, index) => index != i).ToArray();
+            if (IsReportSafe(newLevels))
             {
-                next_level = int.Parse(levels[i + 1]);
-                Console.WriteLine($"next_level {next_level} has been parsed");
-                if (!SafeCheck(level, next_level, direction))
-                {
-                    if (mistake == 0)
-                    {
-                        List<string> tmp = new List<string>(levels);
-                        tmp.RemoveAt(i);
-                        string[] new_levels = tmp.ToArray();
-                        if (!IsDampenerSafe(new_levels, mistake + 1))
-                        {
-                            List<string> tmp_2 = new List<string>(levels);
-                            tmp_2.RemoveAt(i + 1);
-                            string[] new_levels_2 = tmp_2.ToArray();
-                            return IsDampenerSafe(new_levels_2, mistake + 1);
-                        }
-                        else
-                        {
-                            return true;
-                        }
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
+                return true;
             }
         }
-        return true;
+        return false;
     }
 }
