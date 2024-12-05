@@ -11,6 +11,7 @@ r = requests.get(url, cookies=cookies)
 
 res = r.text.strip().split('\n')
 
+# Get rules and updates
 rules = [l for l in res if '|' in l]
 updates = [l for l in res if not '|' in l and l.strip()]
 
@@ -22,6 +23,7 @@ def create_rule_dict(rules):
         rules_dict[x].append(y)
     return rules_dict
 
+# Create rule dict
 rules_dict = create_rule_dict(rules)
 
 def get_true_update(update, rules_dict):
@@ -37,14 +39,31 @@ def get_true_update(update, rules_dict):
                     return False
     return True
 
-true_updates = []
+# Get only the ill ordered
+bad_updates = []
 for update in updates:
-    if (get_true_update(update, rules_dict)):
-        true_updates.append(update)
+    if not (get_true_update(update, rules_dict)):
+        bad_updates.append(update)
 
+# Reorder each bad updates recursively
+def reorder_bad_update(update):
+    prev = []
+    for i in range(len(update)):
+        prev.append(update[i])
+        next = update[i+1:]
+        curr_rul = rules_dict.get(update[i])
+        if (curr_rul):
+            for rule_number in curr_rul:
+                if not (rule_number in next) and (rule_number in prev):
+                    a = update.index(rule_number)
+                    update[i], update[a] = update[a], update[i]
+                    return reorder_bad_update(update)
+
+# Reorder and Get the middle result
 middle = 0
-for u in true_updates:
+for u in bad_updates:
     n = u.split(',')
+    reorder_bad_update(n)
     middle+=int(n[len(n)//2])
 
 print(middle)
