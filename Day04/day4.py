@@ -8,4 +8,14 @@ if not session_cookie:
 cookies = dict(session=session_cookie)
 r = requests.get(url, cookies=cookies)
 
-r.text.strip()
+#print(r.text.strip().split('\n'))
+
+test = "SBBSBBS\nBABABAB\nBBMMMBB\nSAMXMAS\nBBMMMBB\nBABABAB\nSBBSBBS\n"
+
+test2 = "..X...\n.SAMX.\n.A..A.\nXMAS.S\n.X...."
+print(test2)
+
+a = [[c for c in s] for s in test2.strip().split('\n')]
+
+for i in a:
+    print(i)
