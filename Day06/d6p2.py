@@ -1,11 +1,43 @@
-# Get input
+from enum import Enum
+import ipdb
+
 with open('input.txt') as f:
     input = (f.read())
 
-type Map = list[list[str]] #list[list[char]]
 type Coord = tuple[int, int]
+type Pos = tuple[Coord, Coord, Coord, Coord]
 
-# Find our guard
+type Map = list[list[str]] #list[list[char]]
+type Path = dict[Coord, None]
+
+class Direction(Enum):
+    UP = 0
+    RIGHT = 1
+    DOWN = 2
+    LEFT = 3
+
+class Player:
+    def __init__(self, position, direction) -> None:
+        self.position: Coord = position
+        self.direction: Direction = direction
+        self._relative_pos: Pos = ((-1,0), (0, 1), (1, 0), (0, -1))
+
+    def move_forward(self, map) -> bool:
+        x, y = self.position
+        rel_x, rel_y = self._relative_pos[self.direction.value]
+        new_x, new_y = x + rel_x, y + rel_y
+        if map[new_x][new_y] == '#':
+            return False
+        self.position = (new_x, new_y)
+        return True
+
+    def turn_right(self) -> None:
+        self.direction = Direction((self.direction.value + 1) % 4)
+
+    def in_bound(self, map: Map, position: Coord) -> bool:
+        x, y = position
+        return (x > 0 and x < len(map) - 1 and y > 0 and y < len(map[x]) - 1)
+
 def find_guard() -> Coord :
     for i, r in enumerate(map):
         for j, c in enumerate(r):
@@ -13,35 +45,33 @@ def find_guard() -> Coord :
                 return(i, j)
     return (0,0) # Just to comply, there is always a lab guard
 
-# Mark his shift and count his steps
-def get_count(map: Map, start: Coord) -> int:
-    steps = 1
-    x, y = start
-    while (x > 0):
-        # The guard is at a new step
-        # Dont include it if its a position he already marked
-        if (map[x][y] != 'X'):
-            steps += 1
-            map[x][y] = 'X'
+# Mark his shift
+# Store the place he visited in order
+def trace_path(map: Map, player: Player) -> int:
+    visited: Path = {}
+    correct_obstacle = 0
+    while player.in_bound(map, player.position):
+#        ipdb.set_trace()
+        x, y = player.position
+        map[x][y] = 'X'
+        print('\n')
+        if (player.position in visited):
+            os = list(visited)
+            i = os.index(player.position)
+            rel_x, rel_y = player._relative_pos[(player.direction.value + 1) % 4]
+            new_x, new_y = x + rel_x, y + rel_y
+            if (i+1 < len(os) and new_x == os[i+1][0] and new_y == os[i+1][1]):
+                correct_obstacle += 1
+        for r in map: print(r)
+        visited[player.position] = None
 
-        # We dont need to check for safety :
-        # - y is never OOB, the map is rectangular and always rotate in bound
-        # - x never wrap as -1 because we stop the loop before
-        if (map[x-1][y] == '#'):
-            map, pos = rotate(map, x, y)
-            x, y = pos
-        else:
-            x -= 1;
-    return steps
+        if not (player.move_forward(map)):
+            player.turn_right()
+            print(player.direction)
+    return correct_obstacle;
 
-# Rotate map 90 to the left
-def rotate(map: Map, x: int, y: int):
-    new_y = x
-    new_x = len(map[x]) - 1 - y
-    rotated = [list(e) for e in list(reversed(list(zip(*map))))]
-    return list(rotated), (new_x, new_y)
-
-# Make map out of input
-map :Map = [list(c) for c in input.strip().split('\n')]
-player_pos: Coord = find_guard()
-print(get_count(map, player_pos))
+#map :Map = [list(c) for c in input.strip().split('\n')]
+test = "....#.....\n.........#\n..........\n..#.......\n.......#..\n..........\n.#..^.....\n........#.\n#.........\n......#..."
+map :Map = [list(c) for c in test.strip().split('\n')]
+player: Player = Player(find_guard(), Direction.UP)
+print(trace_path(map, player))
