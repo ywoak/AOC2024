@@ -10,4 +10,5 @@ Interesting notes about learning points / challenge / thoughts about each days:
 - Day04 => Numpy Array matrixes diagonals manipulation. Unpacking to zip for vertical observation
 - D04p2 => Using ASCII values to ignore directions
 - Day05 => Use of a HashMap for every rule, keeping an update slice of prev-next of our current update: allow to never check the rules in more than one direction
-- Day06 => Rotating the whole map instead of the player, if O isnt an issue, allow for an elegant straight walk solution while the map rotate around the observee
+- Day06 => In first iteration rotated the whole map instead of the guard, changed it to fit part 2
+- D06p2 => Lots of time optimisation possible, the best i found was checking for loops only for part1 elems, and triggering it as soon as we visited a same place with a same direction, lots of set usage for O(1) insertion
