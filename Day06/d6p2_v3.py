@@ -1,5 +1,3 @@
-import ipdb
-
 from enum import Enum
 
 type Map = list[list[str]]
@@ -7,9 +5,11 @@ type Map = list[list[str]]
 type Coord = tuple[int, int]
 type CoordAndDirection = tuple[int, int, Direction]
 
+# We keep the direction for the second part
 type Visited = set[Coord]
 type VisitedWithDirection = set[CoordAndDirection]
 
+# As an enum allow easy manipulation of relative dir for next step with guard._dirs
 class Direction(Enum):
     UP = 0
     RIGHT = 1
@@ -38,9 +38,19 @@ class Guard:
         self.y = self.y + self._dirs[self.direction.value][1]
 
 def is_in_bound(hMap: int, wMap: int, guard: Guard):
+    '''
+    Checking if the guard position is in the map
+    This function is not a Guard method because :
+    - It relies on the map
+    - We can more explicitely use it with another guard (when `guard.look_forward()`)
+    '''
     return (0 <= guard.x < hMap and 0 <= guard.y < wMap)
 
 def load_map() -> Map:
+    '''
+    Load input.txt
+    map every line as a list in a list of every line and return it
+    '''
     try:
         with open("input.txt") as f:
             input = f.read()
@@ -59,7 +69,10 @@ def find_guard(map) -> Guard:
                 return Guard(i, j, Direction.UP)
     return guard
 
-def get_guard_path(map: Map, guard: Guard, H: int, W: int) -> int:
+def get_guard_path(map: Map, guard: Guard, H: int, W: int) -> tuple[int, Visited]:
+    '''
+    O(N), keep a set of visited area for O(1) insertion while mapping the guard path
+    '''
     visited: Visited = set()
     while True:
         visited.add((guard.x, guard.y))
@@ -70,9 +83,12 @@ def get_guard_path(map: Map, guard: Guard, H: int, W: int) -> int:
             guard.move_forward()
         else:
             guard.turn_right()
-    return len(visited)
+    return len(visited), visited
 
 def is_loop(map: Map, guard: Guard, H: int, W: int):
+    '''
+    We define a loop if before being out of bound, by mapping the guard path, we meet a place he already visited, while facing the same direction
+    '''
     visited: VisitedWithDirection = set()
     while True:
         if ((guard.x, guard.y, guard.direction) in visited):
@@ -86,31 +102,33 @@ def is_loop(map: Map, guard: Guard, H: int, W: int):
         else:
             guard.move_forward()
 
-def p2(map, guard, H, W) -> int:
+def get_correct_obstacle(map, guard, H, W, visited) -> int:
+    '''
+    We use the part 1 `visited` set to try to put an obstacle at each position, and see if there will be a loop
+    We could also remove the positions before #, but the gain would be marginal, and we would have to modify the part 1 result
+    '''
     obstacle = 0
-    for row, R in enumerate(map):
-        for col, _ in enumerate(R):
-            #ipdb.set_trace()
-            if map[row][col] == '.' and not (row == guard.x and col == guard.y):
-                map[row][col] = '#'
-                new_guard = Guard(guard.x, guard.y, guard.direction)
-                if is_loop(map, new_guard, H, W):
-                    obstacle += 1
-                    print(f"At row {row} and col {col}")
-                map[row][col] = '.'
+    for row, col in visited:
+        if map[row][col] == '.' and not (row == guard.x and col == guard.y):
+            map[row][col] = '#'
+            if is_loop(map, Guard(guard.x, guard.y, guard.direction), H, W):
+                obstacle += 1
+            map[row][col] = '.'
     return obstacle
 
 def main():
-    #test = "....#.....\n.........#\n..........\n..#.......\n.......#..\n..........\n.#..^.....\n........#.\n#.........\n......#..."
-    #test = ".#..\n...#\n.^..\n..#."
-    #map: Map = [list(line) for line in test.strip().split('\n')]
+    '''
+    21 seconds without Pypy
+    '''
     map: Map = load_map()
-    for r in map: print(r)
-    H, W = len(map), len(map[0])
     guard: Guard = find_guard(map)
+    H, W = len(map), len(map[0])
 
-    #print(f"part 1 : {get_guard_path(map, guard, H, W)}")
-    print(f"part 2 : {p2(map, guard, H, W)}")
+    visited_num, visited = get_guard_path(map, Guard(guard.x, guard.y, guard.direction), H, W)
+    obstacle_num = get_correct_obstacle(map, guard, H, W, visited)
+
+    print(f"Part 1 : {visited_num}")
+    print(f"Part 2 : {obstacle_num}")
 
 if __name__ == '__main__':
     main()
