@@ -74,10 +74,8 @@ def get_guard_path(map: Map, guard: Guard, H: int, W: int) -> int:
 
 def is_loop(map: Map, guard: Guard, H: int, W: int):
     visited: VisitedWithDirection = set()
-    turns = 0
     while True:
-        turns += 1
-        if (turns == H * W * 4 + 1):
+        if ((guard.x, guard.y, guard.direction) in visited):
             return True
         visited.add((guard.x, guard.y, guard.direction))
         forward = guard.look_forward()
