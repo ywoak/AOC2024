@@ -1,9 +1,14 @@
+import ipdb
+
 from enum import Enum
 
-type Map = list[str]
+type Map = list[list[str]]
 
 type Coord = tuple[int, int]
+type CoordAndDirection = tuple[int, int, Direction]
+
 type Visited = set[Coord]
+type VisitedWithDirection = set[CoordAndDirection]
 
 class Direction(Enum):
     UP = 0
@@ -39,7 +44,7 @@ def load_map() -> Map:
     try:
         with open("input.txt") as f:
             input = f.read()
-        map: Map = input.strip().split('\n')
+        map: Map = [list(line) for line in input.strip().split('\n')]
         return map
     except FileNotFoundError:
         raise FileNotFoundError("Input file is not found")
@@ -60,19 +65,54 @@ def get_guard_path(map: Map, guard: Guard, H: int, W: int) -> int:
         visited.add((guard.x, guard.y))
         forward = guard.look_forward()
         if not (is_in_bound(H, W, forward)):
-            break
+            break;
         if map[forward.x][forward.y] == '.':
             guard.move_forward()
         else:
             guard.turn_right()
     return len(visited)
 
+def is_loop(map: Map, guard: Guard, H: int, W: int):
+    visited: VisitedWithDirection = set()
+    turns = 0
+    while True:
+        turns += 1
+        if (turns == H * W * 4 + 1):
+            return True
+        visited.add((guard.x, guard.y, guard.direction))
+        forward = guard.look_forward()
+        if not (is_in_bound(H, W, forward)):
+            return False
+        if map[forward.x][forward.y] == '#':
+            guard.turn_right()
+        else:
+            guard.move_forward()
+
+def p2(map, guard, H, W) -> int:
+    obstacle = 0
+    for row, R in enumerate(map):
+        for col, _ in enumerate(R):
+            #ipdb.set_trace()
+            if map[row][col] == '.' and not (row == guard.x and col == guard.y):
+                map[row][col] = '#'
+                new_guard = Guard(guard.x, guard.y, guard.direction)
+                if is_loop(map, new_guard, H, W):
+                    obstacle += 1
+                    print(f"At row {row} and col {col}")
+                map[row][col] = '.'
+    return obstacle
+
 def main():
+    #test = "....#.....\n.........#\n..........\n..#.......\n.......#..\n..........\n.#..^.....\n........#.\n#.........\n......#..."
+    #test = ".#..\n...#\n.^..\n..#."
+    #map: Map = [list(line) for line in test.strip().split('\n')]
     map: Map = load_map()
+    for r in map: print(r)
     H, W = len(map), len(map[0])
     guard: Guard = find_guard(map)
 
-    print(f"part 1 : {get_guard_path(map, guard, H, W)}")
+    #print(f"part 1 : {get_guard_path(map, guard, H, W)}")
+    print(f"part 2 : {p2(map, guard, H, W)}")
 
 if __name__ == '__main__':
     main()
