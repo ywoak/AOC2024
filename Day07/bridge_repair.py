@@ -41,14 +41,14 @@ def concat(first: int, second: int) -> int:
     '''
     return(int(str(first) + str(second)))
 
-def is_true(current: int, target: int, operands: Operands, index: int) -> bool:
+def is_true_combined(current: int, target: int, operands: Operands, index: int, use_concat: bool = False) -> bool:
     '''
     - No precedence
     - Evaluate calc left to right
-    - Only `+` and `*` operators available
+    - Operators available: `+`, `*`, and optionally `||` (concatenation)
 
-    Fill every operand with every operator combination possible,
-    then check the result of every combination against our target equation result
+    If use_concat is True, we will include the concatenation operator `||`
+    which joins the current value and the operand as a string, then converts it back to an integer.
 
     Returns ->
     - True if at least one combination is correct
@@ -56,46 +56,33 @@ def is_true(current: int, target: int, operands: Operands, index: int) -> bool:
     '''
     if index == len(operands):
         return current == target
-    return  is_true(current * operands[index], target, operands, index + 1) or \
-            is_true(current + operands[index], target, operands, index + 1)
 
-def is_true_third_operator(current: int, target: int, operands: Operands, index: int) -> bool:
-    '''
-    - No precedence
-    - Evaluate calc left to right
-    - Only `+`, `*` and `||` operators available
-    - `||` is a concatenation operator, E.G.:
-    ```
-    >>> 2 || 35 -> 235
-    ```
+    if use_concat:
+        return (
+            is_true_combined(concat(current, operands[index]), target, operands, index + 1, use_concat) or \
+            is_true_combined(current * operands[index], target, operands, index + 1, use_concat) or
+            is_true_combined(current + operands[index], target, operands, index + 1, use_concat)
+        )
+    else:
+        return (
+            is_true_combined(current * operands[index], target, operands, index + 1, use_concat) or \
+            is_true_combined(current + operands[index], target, operands, index + 1, use_concat)
+        )
 
-    Fill every operand with every operator combination possible,
-    then check the result of every combination against our target equation result
-
-    Returns ->
-    - True if at least one combination is correct
-    - False otherwise
-    '''
-    if index == len(operands):
-        return current == target
-    return  is_true_third_operator(concat(current, operands[index]), target, operands, index + 1) or \
-            is_true_third_operator(current * operands[index], target, operands, index + 1) or \
-            is_true_third_operator(current + operands[index], target, operands, index + 1)
-
-def sum_true_equations(equations: Equations, equation_verification: Verif_function) -> int:
+def sum_true_equations(equations: Equations, use_concat: bool) -> int:
     '''
     Check if each equation is possible and sum their results
     '''
     sum: int = 0
     for results, operands in equations:
-        if equation_verification(operands[0], results, operands, 1):
+        if is_true_combined(operands[0], results, operands, 1, use_concat):
             sum += results
     return sum
 
 def main() -> None:
     equations: Equations = load_equations()
-    print(f"Part1: {sum_true_equations(equations, equation_verification=is_true)}")
-    print(f"Part2: {sum_true_equations(equations, equation_verification=is_true_third_operator)}")
+    print(f"Part1: {sum_true_equations(equations, use_concat=False)}")
+    print(f"Part2: {sum_true_equations(equations, use_concat=True)}")
 
 if __name__ == '__main__':
     main()
