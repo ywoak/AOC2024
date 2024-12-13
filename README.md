@@ -12,3 +12,4 @@ Interesting notes about learning points / challenge / thoughts about each days:
 - Day05 => Use of a HashMap for every rule, keeping an update slice of prev-next of our current update: allow to never check the rules in more than one direction
 - Day06 => In first iteration rotated the whole map instead of the guard, changed it to fit part 2
 - D06p2 => Lots of time optimisation possible, the best i found was checking for loops only for part1 elems, and triggering it as soon as we visited a same place with a same direction, lots of set usage for O(1) insertion
+- Day07 => Dict and tuple comprehension order in python is non intuitive
