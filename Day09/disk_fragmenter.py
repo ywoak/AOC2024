@@ -2,7 +2,7 @@ from collections import OrderedDict
 from tqdm import tqdm
 
 def load_map() -> str:
-    with open('test2.txt') as f:
+    with open('test3.txt') as f:
         input = f.read()
 
     return input.strip()
@@ -71,13 +71,17 @@ def get_first_empty_window(empty_space: OrderedDict):
 def fill_backward(map: list[str], empty_space: OrderedDict) -> list[str]:
     j = i = 0
     b: int = len(map) - 1
+
+    progress_bar = tqdm(total=len(map))
     while (True):
         # Get first empty window (i, j inclusive)
-        if not (i and (i <= j)):
+        if not (i and (i <= j)): # Only recalculate the next in line if needed
             i, j = get_first_empty_window(empty_space)
-        print(f'i, j -> {i, j}')
-        if i < 0: # If there is no more empty_space
-            break
+            if i > 0:
+                empty_space.pop(i) # We clean it instantly to avoid bugs, we dont need it anymore
+            else: # If there is no more empty_space
+                break
+        #print(f'i, j -> {i, j}')
 
         # Get last to switch window (a exclusive)
         a, b = get_last_switch_window(map, b)
@@ -85,28 +89,28 @@ def fill_backward(map: list[str], empty_space: OrderedDict) -> list[str]:
             break
 
         while ((a < b) and (i <= j)):
-            print(f"\nMap before swap -> {"".join(map)}\nFirst window is {i, j}\nSecond window is {a, b}")
+            #print(f"\nMap before swap -> {"".join(map)}\nFirst window is {i, j}\nSecond window is {a, b}")
             map[i], map[b] = map[b], map[i]
-            print(f"Map after the swap -> {"".join(map)}")
+            #print(f"Map after the swap -> {"".join(map)}")
 
             # Update empty_space
-            val = empty_space.pop(i)
-            if (map[i + 1] == '.'):
-                empty_space[i + 1] = val - 1
-            print(f"Empty space -> {[item for item in empty_space.items()]}")
+            #print(f"Empty space -> {[item for item in empty_space.items()]}")
 
             # Update windows
             i += 1
             b -= 1
+ 
+            progress_bar.update(1)
 
+    progress_bar.close()
     return map
 
 def main():
     input = load_map()
-    print(f"Input is {input}")
+    #print(f"Input is {input}")
 
     map, empty_space = represent_map(input)
-    print(f"Map is {"".join(map)}\nEmpty space is {empty_space}")
+    #print(f"Map is {"".join(map)}\nEmpty space is {empty_space}")
 
     map = fill_backward(map, empty_space)
     print(f"Filled map is {"".join(map)}")
