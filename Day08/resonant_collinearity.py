@@ -12,17 +12,14 @@ def load_map() -> Map:
 
     with open('input.txt') as f:
         input = f.read()
-    map = [list(line) for line in input.strip().split('\n')]
+        map = [list(line) for line in input.strip().split('\n')]
     return map
-
-def is_alpha(char: str) -> bool:
-    return (('a' <= char <= 'z') or ('A' <= char <= 'Z') or ('0' <= char <= '9'))
 
 def save_frequency_positions(map: Map) -> Antennas:
     antennas: Antennas = defaultdict(list)
     for row, R in enumerate(map):
         for col, elem in enumerate(R):
-            if (is_alpha(elem)):
+            if (elem.isalnum()):
                 antennas[elem].append((row, col))
     return antennas
 
