@@ -15,7 +15,7 @@ class Point:
 type Map = list[Point]
 
 def load_map() -> str:
-    with open('test3.txt') as f:
+    with open('input.txt') as f:
         input = f.read()
 
     return input.strip()
@@ -55,7 +55,7 @@ def get_checksum(map: Map) -> int:
 
 def get_last_switch_window(map: Map) -> tuple[int, int]:
     # Find something from the end
-    b = map.__len__()
+    b = map.__len__() - 1
     while ((b > 0) and (map[b].state is State.EMPTY)):
         b -= 1
 
@@ -76,12 +76,14 @@ def get_last_switch_window(map: Map) -> tuple[int, int]:
     return a, b
 
 def get_first_empty_window(map: Map) -> tuple[int, int]:
-    i = j = -1
+    i = 0
+    j = 0
     for i, point in enumerate(map):
         if (point.state is State.EMPTY):
-            for j in range(i, len(map)):
-                if ((j + 1 >= len(map)) or (map[j + 1].state is State.FILL)):
-                    break
+            j = i
+            while ((j + 1 < len(map)) and (map[j + 1].state is State.EMPTY)):
+                j += 1
+            break
 
     return i, j
 
@@ -95,7 +97,11 @@ def fill_backward(map: Map) -> Map:
     j = i = 0
     b: int = len(map) - 1
 
+    loop = 0
     while (True):
+        loop += 1
+        if (loop > 100000):
+            break
         if not (i and (i <= j)): # Only recalculate the next in line if needed
             i, j = get_first_empty_window(map)
             print(f'i, j -> {i, j}')
@@ -106,18 +112,14 @@ def fill_backward(map: Map) -> Map:
         if a <= 0: # If there is only one block
             break
 
-        while ((a < b) and (i <= j)):
-            #print(f"\nMap before swap -> {"".join(map)}\nFirst window is {i, j}\nSecond window is {a, b}")
+        while ((a <= b) and (i <= j)):
             map[i], map[b] = map[b], map[i]
-            #print(f"Map after the swap -> {"".join(map)}")
-
-            # Update empty_space
-            #print(f"Empty space -> {[item for item in empty_space.items()]}")
+            print("\nMap after the swap -> ")
+            print_map(map, string=True)
 
             # Update windows
             i += 1
             b -= 1
- 
 
     return map
 
