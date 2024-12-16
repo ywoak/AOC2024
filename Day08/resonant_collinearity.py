@@ -78,20 +78,13 @@ def find_antinodes(antennas: Antennas, H: int, W: int) -> tuple[Antinodes, Antin
 def is_out_of_bound(height: int, width: int, row: int, col: int) -> bool:
     return (not ((0 <= row < height) and (0 <= col < width)))
 
-def remove_out_of_bound_antinodes(height: int, width: int, antinodes: Antinodes) -> Antinodes:
-    antinode_cpy = set(antinodes)
-    for position in antinodes:
-        if (is_out_of_bound(height, width, position[0], position[1])):
-            antinode_cpy.remove(position)
-    return antinode_cpy
-
 def main() -> None:
     map: Map = load_map()
-    H: int = len(map)
-    W: int = len(map[0])
+    H, W = len(map), len(map[0])
+
     antennas: Antennas = save_frequency_positions(map)
     antinodes, rec_antinodes = find_antinodes(antennas, H, W)
-    antinodes = remove_out_of_bound_antinodes(H, W, antinodes)
+
     print(f"Part 1: {len(antinodes)}")
     print(f"Part 2: {len(rec_antinodes)}")
 
