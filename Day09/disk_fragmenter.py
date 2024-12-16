@@ -2,8 +2,9 @@ from collections import OrderedDict
 from tqdm import tqdm
 
 def load_map() -> str:
-    with open('input.txt') as f:
+    with open('test2.txt') as f:
         input = f.read()
+
     return input.strip()
 
 def represent_map(input: str) -> tuple[list[str], OrderedDict]:
@@ -12,12 +13,13 @@ def represent_map(input: str) -> tuple[list[str], OrderedDict]:
     actual_index = 0
     for i, c in enumerate(input):
         if (i % 2 == 0):
-            map += str(i) * int(c)
+            map += str(int(i) // 2) * int(c)
             #print(f"actual index is {actual_index}")
         else:
             map += '.' * int(c)
             empty_space[actual_index] = int(c)
         actual_index += int(c)
+
     return map, empty_space
 
 def get_checksum(map: list[str]) -> int:
@@ -26,61 +28,88 @@ def get_checksum(map: list[str]) -> int:
     for i, c in enumerate(s_map):
         if (c.isalnum()):
             checksum += int(i) * int(c)
+
     return checksum
 
 def find_first(empty_space: OrderedDict) -> tuple[int, int] | tuple[None, None]:
     for i, space in empty_space.items():
-        if space != 0:
+        if space > 0:
             return i, space
+
     return None, None
 
-def is_finished(map: list[str]) -> bool:
-    '''
-    Mark a state when we see a dot
-    If we ever meet something else its not done
-    '''
-    flag = False
+def get_last_switch_window(map: list[str], b: int):
+    # Find a digit
+    while not (map[b].isalnum()):
+        b -= 1
+    a: int = b
 
-    for c in map:
-        if c == '.':
-            flag = True
-        elif c.isalnum() and flag == True:
-            return False
-    return flag
+    tmp = map[b]
+
+    # While there is a window, find it
+    while (map[a] == tmp):
+        a -= 1
+
+    # Verify it there is a window but its already over or not
+    cpy = a
+    while (cpy > 0 and map[cpy].isalnum()):
+        cpy -= 1
+    if (cpy == 0):
+        a = cpy
+
+    return a, b
+
+def get_first_empty_window(empty_space: OrderedDict):
+    i = j = -1
+    pos, space = find_first(empty_space)
+    if pos and space:
+        i = pos
+        j = i + space - 1
+
+    return i, j
 
 def fill_backward(map: list[str], empty_space: OrderedDict) -> list[str]:
-    rev = [c for c in map[::-1]]
-    for j, c in enumerate(tqdm(rev, desc="Processing Map")):
-        # From the tail, every character to shift
-        if (c.isalnum()):
-            # Get the first index of empty space available
-            i, _ = find_first(empty_space)
-            if i is not None:
-                # Put the last char in the correct place
-                map[i] = c
-
-                # Reverse indexing to remove from the actual map while using the reverse index
-                map[-(j+1)] = '.'
-
-                # Update empty space
-                val = empty_space.pop(i)
-                empty_space[i + 1] = val - 1
-        # If we finish a block, check if there is more to do or not, even if there is still empty space available
-        elif (is_finished(map)):
+    j = i = 0
+    b: int = len(map) - 1
+    while (True):
+        # Get first empty window (i, j inclusive)
+        if not (i and (i <= j)):
+            i, j = get_first_empty_window(empty_space)
+        print(f'i, j -> {i, j}')
+        if i < 0: # If there is no more empty_space
             break
+
+        # Get last to switch window (a exclusive)
+        a, b = get_last_switch_window(map, b)
+        if a <= 0: # If there is only one block
+            break
+
+        while ((a < b) and (i <= j)):
+            print(f"\nMap before swap -> {"".join(map)}\nFirst window is {i, j}\nSecond window is {a, b}")
+            map[i], map[b] = map[b], map[i]
+            print(f"Map after the swap -> {"".join(map)}")
+
+            # Update empty_space
+            val = empty_space.pop(i)
+            if (map[i + 1] == '.'):
+                empty_space[i + 1] = val - 1
+            print(f"Empty space -> {[item for item in empty_space.items()]}")
+
+            # Update windows
+            i += 1
+            b -= 1
 
     return map
 
-
 def main():
     input = load_map()
-    #print(f"Input is {input}")
+    print(f"Input is {input}")
 
     map, empty_space = represent_map(input)
-    #print(f"Map is {map}\nEmpty space is {empty_space}")
+    print(f"Map is {"".join(map)}\nEmpty space is {empty_space}")
 
     map = fill_backward(map, empty_space)
-    #print(f"Filled map is {map}")
+    print(f"Filled map is {"".join(map)}")
 
     checksum = get_checksum(map)
     print(f"Part 1: {checksum}")
