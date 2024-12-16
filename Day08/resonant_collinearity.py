@@ -12,8 +12,7 @@ def load_map() -> Map:
 
     with open('input.txt') as f:
         input = f.read()
-    for line in input.strip().split('\n'):
-        map.append(list(line))
+    map = [list(line) for line in input.strip().split('\n')]
     return map
 
 def is_alpha(char: str) -> bool:
