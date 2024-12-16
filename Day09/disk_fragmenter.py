@@ -104,7 +104,7 @@ def fill_backward(map: Map) -> Map:
             break
         if not (i and (i <= j)): # Only recalculate the next in line if needed
             i, j = get_first_empty_window(map)
-            print(f'i, j -> {i, j}')
+            #print(f'i, j -> {i, j}')
             if i < 0: # If there is no more empty_space
                 break
 
@@ -114,8 +114,8 @@ def fill_backward(map: Map) -> Map:
 
         while ((a <= b) and (i <= j)):
             map[i], map[b] = map[b], map[i]
-            print("\nMap after the swap -> ")
-            print_map(map, string=True)
+            #print("\nMap after the swap -> ")
+            #print_map(map, string=True)
 
             # Update windows
             i += 1
@@ -125,13 +125,13 @@ def fill_backward(map: Map) -> Map:
 
 def main():
     input = load_map()
-    print(f"Input is {input}")
+    #print(f"Input is {input}")
 
     map = construct_map(input)
-    print_map(map, string=True)
+    #print_map(map, string=True)
 
     map = fill_backward(map)
-    print_map(map)
+    #print_map(map)
 
     checksum = get_checksum(map)
     print(f"Part 1: {checksum}")
