@@ -1,5 +1,33 @@
 from collections import OrderedDict
+from enum import IntEnum
 from tqdm import tqdm
+
+class State(IntEnum):
+    EMPTY = 0
+    FILL = 1
+
+class Point:
+    def __init__(self, state: State = State.EMPTY, id: int | None = None) -> None:
+        self.state = state
+        self.id = id
+
+    def __str__(self) -> str:
+        return f"State -> {self.state.name} | id -> {self.id}"
+
+type Map = list[Point]
+
+def print_map(map: Map, string=False) -> None:
+    if string:
+        s = ""
+        for point in map:
+            if (point.state == State.EMPTY and point.id is None):
+                s += '.'
+            else:
+                s += str(point.id)
+        print(s)
+    else:
+        for point in map:
+            print(point)
 
 def load_map() -> str:
     with open('test3.txt') as f:
@@ -7,20 +35,17 @@ def load_map() -> str:
 
     return input.strip()
 
-def represent_map(input: str) -> tuple[list[str], OrderedDict]:
-    empty_space = OrderedDict()
-    map: list[str] = list('')
-    actual_index = 0
+def construct_map(input: str) -> Map:
+    map: Map = list()
     for i, c in enumerate(input):
         if (i % 2 == 0):
-            map += str(int(i) // 2) * int(c)
-            #print(f"actual index is {actual_index}")
+            for _ in range(int(c)):
+                map.append(Point(State.FILL, int(i) // 2))
         else:
-            map += '.' * int(c)
-            empty_space[actual_index] = int(c)
-        actual_index += int(c)
+            for _ in range(int(c)):
+                map.append(Point(State.EMPTY, None))
 
-    return map, empty_space
+    return map
 
 def get_checksum(map: list[str]) -> int:
     s_map = "".join(map)
@@ -68,6 +93,11 @@ def get_first_empty_window(empty_space: OrderedDict):
 
     return i, j
 
+# Perhaps representing it is annoying, because '.' is one place, while 10 is 2
+# So without map representation to construct the final
+# 1. un Point c'est un id, un state (taken, empty)
+# 2. on peut dire que on a une map de Point
+
 def fill_backward(map: list[str], empty_space: OrderedDict) -> list[str]:
     j = i = 0
     b: int = len(map) - 1
@@ -107,16 +137,16 @@ def fill_backward(map: list[str], empty_space: OrderedDict) -> list[str]:
 
 def main():
     input = load_map()
-    #print(f"Input is {input}")
+    print(f"Input is {input}")
 
-    map, empty_space = represent_map(input)
-    #print(f"Map is {"".join(map)}\nEmpty space is {empty_space}")
+    map = construct_map(input)
+    print_map(map, string=True)
 
-    map = fill_backward(map, empty_space)
-    print(f"Filled map is {"".join(map)}")
+    #map = fill_backward(map, empty_space)
+    #print(f"Filled map is {print_map(map)}")
 
-    checksum = get_checksum(map)
-    print(f"Part 1: {checksum}")
+    #checksum = get_checksum(map)
+    #print(f"Part 1: {checksum}")
 
 if __name__ == '__main__':
     main()
