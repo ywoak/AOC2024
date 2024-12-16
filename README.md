@@ -15,3 +15,5 @@ Interesting notes about learning points / challenge / thoughts about each days:
 - D06p2 => Time optimisation -> checking for loops only for part1 elems | triggering loop if we visited same place at same direction
 - Day07 => Comprehensions order in python are not intuitive
 - Day08 => Some interesting recursivity
+- Day09 => My first sliding windows algorithm :)
+- Day10 => My first graph traversal algorithm :)
