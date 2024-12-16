@@ -26,7 +26,6 @@ def save_frequency_positions(map: Map) -> Antennas:
         for col, elem in enumerate(R):
             if (is_alpha(elem)):
                 antennas[elem].append((row, col))
-    print(f"Antennas {antennas}")
     return antennas
 
 def calculate_antinodes(pos1: Pos, pos2: Pos) -> set[Pos]:
@@ -36,44 +35,62 @@ def calculate_antinodes(pos1: Pos, pos2: Pos) -> set[Pos]:
     a1_y = y2 + (y2 - y1)
     a2_x = x1 + (x1 - x2)
     a2_y = y1 + (y1 - y2)
-    print(f"For positions {pos1} and {pos2}\nThe first antinode is ({a1_x, a1_y})\nThe second is ({a2_x, a2_y})\n")
     return ({(a1_x, a1_y), (a2_x, a2_y)})
 
-def find_antinodes(antennas: Antennas) -> Antinodes:
+def calculate_antinodes_recursive(pos1: Pos, pos2: Pos, H: int, W: int, antinodes: Antinodes, direction: int = 1) -> set[Pos]:
+    x1, y1 = pos1
+    x2, y2 = pos2
+    if direction == 1:
+        ax = x2 + (x2 - x1)
+        ay = y2 + (y2 - y1)
+    else:
+        ax = x1 + (x1 - x2)
+        ay = y1 + (y1 - y2)
+
+    if is_out_of_bound(H, W, ax, ay):
+        if direction == 0:
+            return antinodes
+        return calculate_antinodes_recursive(pos1, pos2, H, W, antinodes, direction=0)
+
+    antinodes.add((ax, ay))
+    if direction == 1:
+        return calculate_antinodes_recursive(pos2, (ax, ay), H, W, antinodes, direction)
+    else:
+        return calculate_antinodes_recursive((ax, ay), pos1, H, W, antinodes, direction)
+
+def find_antinodes(antennas: Antennas, H: int, W: int) -> tuple[Antinodes, Antinodes]:
     antinodes: Antinodes = set()
+    rec_antinodes: Antinodes = set()
 
     for positions in antennas.values():
-        print(f"\n{positions}")
+        rec_antinodes |= set(positions)
         length = len(positions)
         for i in range(length):
-            j = i + 1
-            while (j < length):
+            for j in range(i + 1, length):
                 antinodes |= calculate_antinodes(positions[i], positions[j])
-                j += 1
+                rec_antinodes |= calculate_antinodes_recursive(positions[i], positions[j], H, W, rec_antinodes)
 
-    print(f"antinodes -> {antinodes}")
-    return antinodes
+    return antinodes, rec_antinodes
 
-def is_out_of_bound(height: int, width: int, row: int, col: int):
-    return ((0 <= row < height) and (0 <= col < width))
+def is_out_of_bound(height: int, width: int, row: int, col: int) -> bool:
+    return (not ((0 <= row < height) and (0 <= col < width)))
 
 def remove_out_of_bound_antinodes(height: int, width: int, antinodes: Antinodes) -> Antinodes:
-    print(antinodes)
     antinode_cpy = set(antinodes)
-    print(f"antinode_cpy -> {antinode_cpy}")
     for position in antinodes:
-        if not (is_out_of_bound(height, width, position[0], position[1])):
-            print(f"the out of bound position is {position}")
+        if (is_out_of_bound(height, width, position[0], position[1])):
             antinode_cpy.remove(position)
-    print(f"antinode_cpy -> {antinode_cpy}")
     return antinode_cpy
 
 def main() -> None:
     map: Map = load_map()
+    H: int = len(map)
+    W: int = len(map[0])
     antennas: Antennas = save_frequency_positions(map)
-    antinodes: Antinodes = find_antinodes(antennas)
-    antinodes = remove_out_of_bound_antinodes(len(map), len(map[0]), antinodes)
+    antinodes, rec_antinodes = find_antinodes(antennas, H, W)
+    antinodes = remove_out_of_bound_antinodes(H, W, antinodes)
     print(f"Part 1: {len(antinodes)}")
+    print(f"Part 2: {len(rec_antinodes)}")
 
 if __name__ == '__main__':
     main()
