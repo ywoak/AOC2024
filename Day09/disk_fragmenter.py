@@ -1,6 +1,4 @@
-from collections import OrderedDict
 from enum import IntEnum
-from tqdm import tqdm
 
 class State(IntEnum):
     EMPTY = 0
@@ -15,19 +13,6 @@ class Point:
         return f"State -> {self.state.name} | id -> {self.id}"
 
 type Map = list[Point]
-
-def print_map(map: Map, string=False) -> None:
-    if string:
-        s = ""
-        for point in map:
-            if (point.state == State.EMPTY and point.id is None):
-                s += '.'
-            else:
-                s += str(point.id)
-        print(s)
-    else:
-        for point in map:
-            print(point)
 
 def load_map() -> str:
     with open('test3.txt') as f:
@@ -47,74 +32,77 @@ def construct_map(input: str) -> Map:
 
     return map
 
-def get_checksum(map: list[str]) -> int:
-    s_map = "".join(map)
+def print_map(map: Map, string=False) -> None:
+    if string:
+        s = ""
+        for point in map:
+            if (point.state == State.EMPTY and point.id is None):
+                s += '.'
+            else:
+                s += str(point.id)
+        print(s)
+    else:
+        for point in map:
+            print(point)
+
+def get_checksum(map: Map) -> int:
     checksum: int = 0
-    for i, c in enumerate(s_map):
-        if (c.isalnum()):
-            checksum += int(i) * int(c)
+    for i, c in enumerate(map):
+        if (c.id is not None):
+            checksum += i * c.id
 
     return checksum
 
-def find_first(empty_space: OrderedDict) -> tuple[int, int] | tuple[None, None]:
-    for i, space in empty_space.items():
-        if space > 0:
-            return i, space
-
-    return None, None
-
-def get_last_switch_window(map: list[str], b: int):
-    # Find a digit
-    while not (map[b].isalnum()):
+def get_last_switch_window(map: Map) -> tuple[int, int]:
+    # Find something from the end
+    b = map.__len__()
+    while ((b > 0) and (map[b].state is State.EMPTY)):
         b -= 1
+
     a: int = b
+    tmp = map[b].id
 
-    tmp = map[b]
-
-    # While there is a window, find it
-    while (map[a] == tmp):
+    # While there is a window of similar id, find it
+    while ((a - 1 > 0) and (map[a - 1].state is State.FILL) and (map[a - 1].id == tmp)):
         a -= 1
 
-    # Verify it there is a window but its already over or not
+    # Verify it there is a window but its already finished or not
     cpy = a
-    while (cpy > 0 and map[cpy].isalnum()):
+    while ((cpy > 0) and (map[cpy].state is State.FILL)):
         cpy -= 1
     if (cpy == 0):
         a = cpy
 
     return a, b
 
-def get_first_empty_window(empty_space: OrderedDict):
+def get_first_empty_window(map: Map) -> tuple[int, int]:
     i = j = -1
-    pos, space = find_first(empty_space)
-    if pos and space:
-        i = pos
-        j = i + space - 1
+    for i, point in enumerate(map):
+        if (point.state is State.EMPTY):
+            for j in range(i, len(map)):
+                if ((j + 1 >= len(map)) or (map[j + 1].state is State.FILL)):
+                    break
 
     return i, j
 
 # Perhaps representing it is annoying, because '.' is one place, while 10 is 2
 # So without map representation to construct the final
-# 1. un Point c'est un id, un state (taken, empty)
-# 2. on peut dire que on a une map de Point
+# 1. Un Point c'est un id, un state (taken, empty)
+# 2. On peut dire que on a une map de Point
+# 3. On garde l'approche des sliding windows
 
-def fill_backward(map: list[str], empty_space: OrderedDict) -> list[str]:
+def fill_backward(map: Map) -> Map:
     j = i = 0
     b: int = len(map) - 1
 
-    progress_bar = tqdm(total=len(map))
     while (True):
-        # Get first empty window (i, j inclusive)
         if not (i and (i <= j)): # Only recalculate the next in line if needed
-            i, j = get_first_empty_window(empty_space)
-            if i > 0:
-                empty_space.pop(i) # We clean it instantly to avoid bugs, we dont need it anymore
-            else: # If there is no more empty_space
+            i, j = get_first_empty_window(map)
+            print(f'i, j -> {i, j}')
+            if i < 0: # If there is no more empty_space
                 break
-        #print(f'i, j -> {i, j}')
 
-        # Get last to switch window (a exclusive)
-        a, b = get_last_switch_window(map, b)
+        a, b = get_last_switch_window(map)
         if a <= 0: # If there is only one block
             break
 
@@ -130,9 +118,7 @@ def fill_backward(map: list[str], empty_space: OrderedDict) -> list[str]:
             i += 1
             b -= 1
  
-            progress_bar.update(1)
 
-    progress_bar.close()
     return map
 
 def main():
@@ -142,11 +128,11 @@ def main():
     map = construct_map(input)
     print_map(map, string=True)
 
-    #map = fill_backward(map, empty_space)
-    #print(f"Filled map is {print_map(map)}")
+    map = fill_backward(map)
+    print_map(map)
 
-    #checksum = get_checksum(map)
-    #print(f"Part 1: {checksum}")
+    checksum = get_checksum(map)
+    print(f"Part 1: {checksum}")
 
 if __name__ == '__main__':
     main()
