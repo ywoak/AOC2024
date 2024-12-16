@@ -23,14 +23,22 @@ def save_frequency_positions(map: Map) -> Antennas:
                 antennas[elem].append((row, col))
     return antennas
 
-def calculate_antinodes(pos1: Pos, pos2: Pos) -> set[Pos]:
+def calculate_antinodes(pos1: Pos, pos2: Pos, H: int, W: int) -> set[Pos]:
+    tmp = set()
+
     x1, y1 = pos1
     x2, y2 = pos2
     a1_x = x2 + (x2 - x1)
     a1_y = y2 + (y2 - y1)
     a2_x = x1 + (x1 - x2)
     a2_y = y1 + (y1 - y2)
-    return ({(a1_x, a1_y), (a2_x, a2_y)})
+
+    if not (is_out_of_bound(H, W, a1_x, a1_y)):
+        tmp.add((a1_x, a1_y))
+    if not (is_out_of_bound(H, W, a2_x, a2_y)):
+        tmp.add((a2_x, a2_y))
+
+    return tmp
 
 def calculate_antinodes_recursive(pos1: Pos, pos2: Pos, H: int, W: int, antinodes: Antinodes, direction: int = 1) -> set[Pos]:
     x1, y1 = pos1
@@ -62,7 +70,7 @@ def find_antinodes(antennas: Antennas, H: int, W: int) -> tuple[Antinodes, Antin
         length = len(positions)
         for i in range(length):
             for j in range(i + 1, length):
-                antinodes |= calculate_antinodes(positions[i], positions[j])
+                antinodes |= calculate_antinodes(positions[i], positions[j], H, W)
                 rec_antinodes |= calculate_antinodes_recursive(positions[i], positions[j], H, W, rec_antinodes)
 
     return antinodes, rec_antinodes
