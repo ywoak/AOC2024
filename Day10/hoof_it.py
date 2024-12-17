@@ -1,4 +1,4 @@
-from collections import defaultdict
+from collections import defaultdict, deque
 
 type Map = list[list[str]]
 type Pos = tuple[int, int]
@@ -7,27 +7,48 @@ type Score = defaultdict[Pos, int]
 type Path = dict[Pos, Pos]
 
 def load_map() -> Map:
-    with open('test.txt') as f:
+    with open('input.txt') as f:
         input = f.read()
     map = [list(line) for line in input.strip().split('\n')]
     return map
 
-def dfs(map: Map, H: int, W: int, pos: Pos = (0, 0), visited: set[Pos] = set(), prev: Path = dict()) -> Path:
+def bfs(map, H, W, pos):
+    directions: list[tuple[int, int]] = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+    top = set()
+    q = deque()
+    q.append((pos[0], pos[1]))
+
+    while q:
+        x, y = q.popleft()
+        for direction in directions:
+            dx, dy = x + direction[0], y + direction[1]
+            #if (0 > dx >= H) or (0 > dy >= W): continue
+            if 0 > dx or 0 > dy or dx >= H or dy >= W: continue
+            if int(map[dx][dy]) != int(map[x][y]) + 1: continue
+            if (int(map[dx][dy]) == 9):
+                print("FIND A 9")
+                top.add((dx, dy))
+            else:
+                print("Nothing")
+                q.append((dx, dy))
+    return len(top)
+
+def dfs(map: Map, H: int, W: int, pos: Pos = (0, 0), visited: set[Pos] = set(), prev: Path = dict(), top: int = 0) -> int:
     directions: list[tuple[int, int]] = [(-1, 0), (0, 1), (1, 0), (0, -1)]
 
     if (pos not in visited):
         x, y = pos
         visited.add((x, y))
-
         if (int(map[x][y]) == 9):
-            return prev
-
-        for direction in directions:
-            dx, dy = x + direction[0], y + direction[1]
-            if ((0 <= dx < H) and (0 <= dy < W) and ((dx, dy) not in visited) and (int(map[dx][dy]) == int(map[x][y]) + 1)):
-                prev[(dx, dy)] = (x, y)
-                dfs(map, H, W, (dx, dy), visited, prev)
-    return prev
+            if (x, y in visited):
+                top += 1
+        else:
+            for direction in directions:
+                dx, dy = x + direction[0], y + direction[1]
+                if ((0 <= dx < H) and (0 <= dy < W) and ((dx, dy) not in visited) and (int(map[dx][dy]) == int(map[x][y]) + 1)):
+                    prev[(dx, dy)] = (x, y)
+                    return dfs(map, H, W, (dx, dy), visited, prev, top)
+    return top
 
 def find_trailhead(map: Map) -> list[Pos]:
     trailheads = []
@@ -59,12 +80,10 @@ def main():
     map: Map = load_map()
     H, W = len(map), len(map[0])
 
-    path = []
     trailheads: list[Pos] = find_trailhead(map)
-    for trailhead in trailheads:
-        prev: Path = dfs(map, H, W, trailhead)
-        path.extend(reconstruct_path(map, prev, trailhead))
-    print(f"Part 1: {len(path)}")
+    print(f"trailheads {trailheads}")
+    score = sum(bfs(map, H, W, trailhead) for trailhead in trailheads)
+    print(f"Part 1: {score}")
 
 if __name__ == '__main__':
     main()
