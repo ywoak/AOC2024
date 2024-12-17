@@ -14,7 +14,7 @@ def load_map() -> Map:
 
 def bfs(map, H, W, pos):
     directions: list[tuple[int, int]] = [(-1, 0), (0, 1), (1, 0), (0, -1)]
-    top = set()
+    top = 0
     q = deque()
     q.append((pos[0], pos[1]))
 
@@ -27,11 +27,11 @@ def bfs(map, H, W, pos):
             if int(map[dx][dy]) != int(map[x][y]) + 1: continue
             if (int(map[dx][dy]) == 9):
                 print("FIND A 9")
-                top.add((dx, dy))
+                top += 1
             else:
                 print("Nothing")
                 q.append((dx, dy))
-    return len(top)
+    return top
 
 def dfs(map: Map, H: int, W: int, pos: Pos = (0, 0), visited: set[Pos] = set(), prev: Path = dict(), top: int = 0) -> int:
     directions: list[tuple[int, int]] = [(-1, 0), (0, 1), (1, 0), (0, -1)]
