@@ -1,4 +1,5 @@
 import sys
+from collections import deque, defaultdict
 
 # Garden plot -> Une case
 # Map -> garden plots
@@ -11,6 +12,17 @@ import sys
 
 type GardenPlot = str
 type GardenPlots = list[GardenPlot]
+
+type Pos = tuple[int, int]
+
+type Area = int
+type Perimeter = int
+
+type Region = tuple[Area, Perimeter]
+type Regions = list[Region]
+
+type D = defaultdict[GardenPlot, Regions]
+type Visited = set[Pos]
 
 def load_map() -> GardenPlots:
     if len(sys.argv) != 2:
