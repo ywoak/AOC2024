@@ -17,3 +17,4 @@ Interesting notes about learning points / challenge / thoughts about each days:
 - Day08 => Some interesting recursivity
 - Day09 => My first sliding windows algorithm :)
 - Day10 => My first graph traversal algorithm :)
+- Day11 => Used a cache at first, but having a solution without printing at all instead is done in 0.01s
