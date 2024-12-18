@@ -8,7 +8,7 @@ type Count = defaultdict[Stone, int]
 def load_map():
     with open('input.txt') as f:
         input = f.read()
-    return [c for c in input.split(' ')]
+    return [c for c in input.strip().split(' ')]
 
 def blink(count: Count) -> Count:
     cpy: Count = defaultdict(int)
@@ -23,8 +23,8 @@ def blink(count: Count) -> Count:
         else:
             tmp: Stones = [str(int(stone) * 2024)]
 
-        for e in tmp:
-            cpy[e] += val
+        for next in tmp:
+            cpy[next] += val
     return cpy
 
 def fill_cache(stones: Stones, count_cache: Count) -> Count:
@@ -34,12 +34,14 @@ def fill_cache(stones: Stones, count_cache: Count) -> Count:
 
 def main():
     stones: Stones = load_map()
-    count_cache: Count = defaultdict(int)
-    count_cache = fill_cache(stones, count_cache)
-    for _ in range(25):
-        count_cache = blink(count_cache)
+    count: Count = defaultdict(int)
+    count = fill_cache(stones, count)
 
-    print(f"Part 1: {sum(count_cache.values())}")
+    for i in range(75):
+        count = blink(count)
+        if i == 24:
+            print(f"Part 1: {sum(count.values())}")
+    print(f"Part 2: {sum(count.values())}")
 
 if __name__ == "__main__":
     main()
