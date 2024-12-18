@@ -36,8 +36,22 @@ def print_map(map):
     print('\n')
     for r in map: print(r)
 
+def find_fence_price(map: GardenPlots, H: int, W: int) -> int:
+    d: D = defaultdict(list)
+    vis: Visited = set()
+
+    for row in range(H):
+        for col in range(W):
+            if not (map[row][col] in vis):
+                calculate_region(row, col, map, d, vis)
+
+    return sum([area * perimeter for regions in d.values() for area, perimeter in regions])
+
+
 def main() -> None:
     map: GardenPlots = load_map()
+    H, W = len(map), len(map[0])
+    find_fence_price(map, H, W)
     print_map(map)
 
 if __name__ == "__main__":
