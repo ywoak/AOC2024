@@ -15,6 +15,7 @@ Interesting notes about learning points / challenge / thoughts about each days:
 - D06p2 => Time optimisation -> checking for loops only for part1 elems | triggering loop if we visited same place at same direction
 - Day07 => Comprehensions order in python are not intuitive
 - Day08 => Some interesting recursivity
-- Day09 => My first sliding windows algorithm :)
-- Day10 => My first graph traversal algorithm :)
+- Day09 => My first sliding windows algorithm ! :)
+- Day10 => My first graph traversal algorithm ! :)
 - Day11 => Used a cache at first, but having a solution without printing at all instead is done in 0.01s
+- Day12 => My best code until now, nice and simple solution to know how many side a shape has in part2, an overall really fast solution (0.1s on input without Pypy)
