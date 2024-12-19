@@ -48,9 +48,8 @@ def calculate_region(row: int, col: int, map: GardenPlots, vis: Visited, H: int,
 
     while queue:
         x, y = queue.pop()
-        pos.append((x, y))
-        area += 1
         sides: int = 4
+
         for (dx, dy) in directions:
             nx, ny = x + dx, y + dy
             if (in_bound(nx, ny, H, W) and map[nx][ny] == map[x][y]):
@@ -58,7 +57,10 @@ def calculate_region(row: int, col: int, map: GardenPlots, vis: Visited, H: int,
                 if not (nx, ny) in vis:
                     queue.append((nx, ny))
                     vis.add((nx, ny))
+
+        area += 1
         perimeter += sides
+        pos.append((x, y))
 
     return area, perimeter, pos
 
