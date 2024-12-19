@@ -6,13 +6,14 @@ type GardenPlots = list[GardenPlot]
 
 type Position = tuple[int, int]
 type Positions = list[Position]
+type SetPositions = set[Position]
 
 type Price = int
 type Corners = int
 type Area = int
 type Perimeter = int
 
-type Region = tuple[Area, Perimeter, Positions]
+type Region = tuple[Area, Perimeter, SetPositions]
 type Regions = list[Region]
 
 type Visited = set[Position]
@@ -35,7 +36,7 @@ def calculate_region(row: int, col: int, map: GardenPlots, vis: Visited, H: int,
 
     area: Area = 0
     perimeter: Perimeter = 0
-    pos: Positions = list()
+    pos: SetPositions = set()
 
     while queue:
         x, y = queue.pop()
@@ -51,7 +52,7 @@ def calculate_region(row: int, col: int, map: GardenPlots, vis: Visited, H: int,
 
         area += 1
         perimeter += sides
-        pos.append((x, y))
+        pos.add((x, y))
 
     return area, perimeter, pos
 
@@ -67,8 +68,7 @@ def fence_price(map: GardenPlots, H: int, W: int) -> tuple[Price, Regions]:
 
     return sum(area * perimeter for area, perimeter, _ in regions), regions
 
-# TODO: change Positions as a set instead, for O(1) retrieve/inspect
-def get_corners(shape: Positions) -> Corners:
+def get_corners(shape: SetPositions) -> Corners:
     vertical: Positions = [(-1, 0), (1, 0)]
     horizontal: Positions = [(0, -1), (0, 1)]
     corners: Corners = 0
