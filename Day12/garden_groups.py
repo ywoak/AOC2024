@@ -8,6 +8,7 @@ type Position = tuple[int, int]
 type Positions = list[Position]
 
 type Price = int
+type Corners = int
 type Area = int
 type Perimeter = int
 
@@ -22,22 +23,12 @@ def load_map() -> GardenPlots:
     input = sys.argv[1]
 
     with open(input) as f:
-        return [plot for plot in f.read().strip().split('\n')]
+        return [plot.strip() for plot in f.read().strip().split('\n')]
 
 def in_bound(x: int, y: int, H: int, W: int) -> bool:
     return (0 <= x < H and 0 <= y < W)
 
 def calculate_region(row: int, col: int, map: GardenPlots, vis: Visited, H: int, W: int) -> Region:
-    """
-    BFS algorithm for neighbourg
-
-    perimeter ->
-    - for each garden plot in the region
-    - is equal to every side that wasnt a similar plot
-    - even if we already visited it, so we dont use visited for perimeters
-    (i.e. `sides: int = 4`)
-    """
-
     directions: Positions = [(-1, 0), (1, 0), (0, 1), (0, -1)]
     queue: deque = deque([(row, col)])
     vis.add((row, col))
@@ -76,16 +67,34 @@ def fence_price(map: GardenPlots, H: int, W: int) -> tuple[Price, Regions]:
 
     return sum(area * perimeter for area, perimeter, _ in regions), regions
 
+# TODO: change Positions as a set instead, for O(1) retrieve/inspect
+def get_corners(shape: Positions) -> Corners:
+    vertical: Positions = [(-1, 0), (1, 0)]
+    horizontal: Positions = [(0, -1), (0, 1)]
+    corners: Corners = 0
+
+    for x, y in shape:
+        for vx, vy in vertical:
+            for hx, hy in horizontal:
+                dvx, dvy, dhx, dhy = x + vx, y + vy, x + hx, y + hy
+                # Concave
+                if not (((dvx, dvy) in shape) or ((dhx, dhy) in shape)):
+                    corners += 1
+                # Convex
+                elif (((dvx, dvy) in shape) and ((dhx, dhy) in shape) and ((dvx, dhy) not in shape)):
+                    corners += 1
+
+    return corners
+
 def bulk_fence_price(regions: Regions) -> Price:
-    price: Price = 0
-    return price
+    return sum(area * get_corners(pos) for area, _, pos in regions)
 
 def main() -> None:
     map: GardenPlots = load_map()
     H, W = len(map), len(map[0])
 
     price, regions = fence_price(map, H, W)
-    bulk_price = bulk_fence_price(regions)
+    bulk_price: Price = bulk_fence_price(regions)
 
     print(f"Part 1: {price}")
     print(f"Part 2: {bulk_price}")
