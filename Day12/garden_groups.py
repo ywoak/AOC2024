@@ -13,7 +13,6 @@ type Perimeter = int
 type Region = tuple[Area, Perimeter]
 type Regions = list[Region]
 
-type Zones = defaultdict[GardenPlot, Regions]
 type Visited = set[Pos]
 
 def load_map() -> GardenPlots:
@@ -27,7 +26,7 @@ def load_map() -> GardenPlots:
 def in_bound(x: int, y: int, H: int, W: int) -> bool:
     return (0 <= x < H and 0 <= y < W)
 
-def calculate_region(row: int, col: int, map: GardenPlots, vis: Visited, d: Zones, H: int, W: int) -> tuple[Zones, Visited]:
+def calculate_region(row: int, col: int, map: GardenPlots, vis: Visited, H: int, W: int) -> tuple[Region, Visited]:
     """
     BFS algorithm for neighbourg
 
@@ -58,19 +57,19 @@ def calculate_region(row: int, col: int, map: GardenPlots, vis: Visited, d: Zone
                     vis.add((nx, ny))
         perimeter += sides
 
-    d[map[row][col]].append((area, perimeter))
-    return d, vis
+    return (area, perimeter), vis
 
 def find_fence_price(map: GardenPlots, H: int, W: int) -> int:
-    d: Zones = defaultdict(list)
+    regions: Regions = list()
     vis: Visited = set()
 
     for row in range(H):
         for col in range(W):
             if not ((row, col) in vis):
-                d, vis = calculate_region(row, col, map, vis, d, H, W)
+                region, vis = calculate_region(row, col, map, vis, H, W)
+                regions.append(region)
 
-    return sum([area * perimeter for regions in d.values() for area, perimeter in regions])
+    return sum([area * perimeter for area, perimeter in regions])
 
 def main() -> None:
     map: GardenPlots = load_map()
