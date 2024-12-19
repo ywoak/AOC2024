@@ -69,7 +69,7 @@ def find_fence_price(map: GardenPlots, H: int, W: int) -> int:
                 region = calculate_region(row, col, map, vis, H, W)
                 regions.append(region)
 
-    return sum([area * perimeter for area, perimeter in regions])
+    return sum(area * perimeter for area, perimeter in regions)
 
 def main() -> None:
     map: GardenPlots = load_map()
