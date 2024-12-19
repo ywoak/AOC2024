@@ -1,19 +1,11 @@
+from collections import defaultdict, deque
 import sys
-from collections import deque, defaultdict
-
-# Garden plot -> Une case
-# Map -> garden plots
-# Region -> Garden plot qui se touche (horizontal/vertical) avec les memes plantes
-# area -> number of garden plot in a region
-# perimeter -> number of sides of garden plots in the region that do not touch another garden plot in the same region.
-# price -> sum of all regions area * perimeter
-#
-# Find price for garden
 
 type GardenPlot = str
 type GardenPlots = list[GardenPlot]
 
 type Pos = tuple[int, int]
+type Positions = list[Pos]
 
 type Area = int
 type Perimeter = int
@@ -21,38 +13,70 @@ type Perimeter = int
 type Region = tuple[Area, Perimeter]
 type Regions = list[Region]
 
-type D = defaultdict[GardenPlot, Regions]
+type Zones = defaultdict[GardenPlot, Regions]
 type Visited = set[Pos]
 
 def load_map() -> GardenPlots:
     if len(sys.argv) != 2:
         raise ValueError("Usage: python ../get_input.py <day>")
     input = sys.argv[1]
-    with open(input) as f:
-        map: GardenPlots = [plot for plot in f.read().strip().split('\n')]
-    return map
 
-def print_map(map):
-    print('\n')
-    for r in map: print(r)
+    with open(input) as f:
+        return [plot for plot in f.read().strip().split('\n')]
+
+def in_bound(x: int, y: int, H: int, W: int) -> bool:
+    return (0 <= x < H and 0 <= y < W)
+
+def calculate_region(row: int, col: int, map: GardenPlots, vis: Visited, d: Zones, H: int, W: int) -> tuple[Zones, Visited]:
+    """
+    BFS algorithm for neighbourg
+
+    perimeter ->
+    - for each garden plot in the region
+    - is equal to every side that wasnt a similar plot
+    - even if we already visited it, so we dont use visited for perimeters
+    (i.e. `sides: int = 4`)
+    """
+
+    directions: Positions = [(-1, 0), (1, 0), (0, 1), (0, -1)]
+    queue: deque = deque([(row, col)])
+    vis.add((row, col))
+
+    area: Area = 0
+    perimeter: Perimeter = 0
+
+    while queue:
+        sides: int = 4
+        area += 1
+        x, y = queue.pop()
+        for (dx, dy) in directions:
+            nx, ny = x + dx, y + dy
+            if (in_bound(nx, ny, H, W) and map[nx][ny] == map[x][y]):
+                sides -= 1
+                if not (nx, ny) in vis:
+                    queue.append((nx, ny))
+                    vis.add((nx, ny))
+        perimeter += sides
+
+    d[map[row][col]].append((area, perimeter))
+    return d, vis
 
 def find_fence_price(map: GardenPlots, H: int, W: int) -> int:
-    d: D = defaultdict(list)
+    d: Zones = defaultdict(list)
     vis: Visited = set()
 
     for row in range(H):
         for col in range(W):
-            if not (map[row][col] in vis):
-                calculate_region(row, col, map, d, vis)
+            if not ((row, col) in vis):
+                d, vis = calculate_region(row, col, map, vis, d, H, W)
 
     return sum([area * perimeter for regions in d.values() for area, perimeter in regions])
-
 
 def main() -> None:
     map: GardenPlots = load_map()
     H, W = len(map), len(map[0])
-    find_fence_price(map, H, W)
-    print_map(map)
+
+    print(f"Part 1: {find_fence_price(map, H, W)}")
 
 if __name__ == "__main__":
     main()
