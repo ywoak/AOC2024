@@ -26,7 +26,7 @@ def load_map() -> GardenPlots:
 def in_bound(x: int, y: int, H: int, W: int) -> bool:
     return (0 <= x < H and 0 <= y < W)
 
-def calculate_region(row: int, col: int, map: GardenPlots, vis: Visited, H: int, W: int) -> tuple[Region, Visited]:
+def calculate_region(row: int, col: int, map: GardenPlots, vis: Visited, H: int, W: int) -> Region:
     """
     BFS algorithm for neighbourg
 
@@ -57,7 +57,7 @@ def calculate_region(row: int, col: int, map: GardenPlots, vis: Visited, H: int,
                     vis.add((nx, ny))
         perimeter += sides
 
-    return (area, perimeter), vis
+    return (area, perimeter)
 
 def find_fence_price(map: GardenPlots, H: int, W: int) -> int:
     regions: Regions = list()
@@ -66,7 +66,7 @@ def find_fence_price(map: GardenPlots, H: int, W: int) -> int:
     for row in range(H):
         for col in range(W):
             if not ((row, col) in vis):
-                region, vis = calculate_region(row, col, map, vis, H, W)
+                region = calculate_region(row, col, map, vis, H, W)
                 regions.append(region)
 
     return sum([area * perimeter for area, perimeter in regions])
