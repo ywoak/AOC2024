@@ -1,4 +1,4 @@
-from collections import defaultdict, deque
+from collections import deque
 import sys
 
 type GardenPlot = str
