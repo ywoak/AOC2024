@@ -57,7 +57,7 @@ def calculate_region(row: int, col: int, map: GardenPlots, vis: Visited, H: int,
                     vis.add((nx, ny))
         perimeter += sides
 
-    return (area, perimeter)
+    return area, perimeter
 
 def find_fence_price(map: GardenPlots, H: int, W: int) -> int:
     regions: Regions = list()
