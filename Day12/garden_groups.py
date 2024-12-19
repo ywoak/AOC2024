@@ -4,16 +4,17 @@ import sys
 type GardenPlot = str
 type GardenPlots = list[GardenPlot]
 
-type Pos = tuple[int, int]
-type Positions = list[Pos]
+type Position = tuple[int, int]
+type Positions = list[Position]
 
+type Price = int
 type Area = int
 type Perimeter = int
 
-type Region = tuple[Area, Perimeter]
+type Region = tuple[Area, Perimeter, Positions]
 type Regions = list[Region]
 
-type Visited = set[Pos]
+type Visited = set[Position]
 
 def load_map() -> GardenPlots:
     if len(sys.argv) != 2:
@@ -43,11 +44,13 @@ def calculate_region(row: int, col: int, map: GardenPlots, vis: Visited, H: int,
 
     area: Area = 0
     perimeter: Perimeter = 0
+    pos: Positions = list()
 
     while queue:
-        sides: int = 4
-        area += 1
         x, y = queue.pop()
+        pos.append((x, y))
+        area += 1
+        sides: int = 4
         for (dx, dy) in directions:
             nx, ny = x + dx, y + dy
             if (in_bound(nx, ny, H, W) and map[nx][ny] == map[x][y]):
@@ -57,9 +60,9 @@ def calculate_region(row: int, col: int, map: GardenPlots, vis: Visited, H: int,
                     vis.add((nx, ny))
         perimeter += sides
 
-    return area, perimeter
+    return area, perimeter, pos
 
-def find_fence_price(map: GardenPlots, H: int, W: int) -> int:
+def fence_price(map: GardenPlots, H: int, W: int) -> tuple[Price, Regions]:
     regions: Regions = list()
     vis: Visited = set()
 
@@ -69,13 +72,21 @@ def find_fence_price(map: GardenPlots, H: int, W: int) -> int:
                 region = calculate_region(row, col, map, vis, H, W)
                 regions.append(region)
 
-    return sum(area * perimeter for area, perimeter in regions)
+    return sum(area * perimeter for area, perimeter, _ in regions), regions
+
+def bulk_fence_price(regions: Regions) -> Price:
+    price: Price = 0
+    return price
 
 def main() -> None:
     map: GardenPlots = load_map()
     H, W = len(map), len(map[0])
 
-    print(f"Part 1: {find_fence_price(map, H, W)}")
+    price, regions = fence_price(map, H, W)
+    bulk_price = bulk_fence_price(regions)
+
+    print(f"Part 1: {price}")
+    print(f"Part 2: {bulk_price}")
 
 if __name__ == "__main__":
     main()
