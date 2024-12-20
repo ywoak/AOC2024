@@ -7,7 +7,7 @@ def load_input() -> str:
     """
     Load stdin
     """
-    return input
+    return input.strip()
 
 def load_lines() -> list[str]:
     """
