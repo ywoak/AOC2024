@@ -19,3 +19,4 @@ Interesting notes about learning points / challenge / thoughts about each days:
 - Day10 => My first graph traversal algorithm ! :)
 - Day11 => Used a cache at first, but having a solution without printing at all instead is done in 0.01s
 - Day12 => My best code until now, nice and simple solution to know how many side a shape has in part2, an overall really fast solution (0.1s on input without Pypy)
+- Day13 => The list comprehension and generator expression used for parsing the input is clean ! Starting to love this feature the most out of python
