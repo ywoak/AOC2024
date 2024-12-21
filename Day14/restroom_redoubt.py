@@ -39,10 +39,21 @@ def place_robots(map: Map, robots: Robots):
 
         map[py][px] += 1
 
-def move_robots(map: Map, robots: Robots):
+def move_robots(map: Map, robots: Robots, H: int, W: int):
     for robot in robots:
         px, py, mx, my = robot
-        print(f"px -> {px}, py -> {py}, mx -> {mx}, my -> {my}")
+
+        # Calculate end position for a turn while wrapping
+        nx, ny = (px + mx) % W, (py + my) % H
+        #print(f"px -> {px}, py -> {py}, mx -> {mx}, my -> {my}, nx {nx}, ny {ny}")
+
+        # Move robot
+        map[py][px] -= 1
+        map[ny][nx] += 1
+
+        # Update robot
+        robot[0] = nx
+        robot[1] = ny
 
 # px, py = position from top left 0, 0
 # vx, vy = mouvement every second, positive y means right, positive x means down
@@ -53,26 +64,28 @@ def move_robots(map: Map, robots: Robots):
 # Multiply number of robot in each quarter
 #
 # We mutate robot to hold current positions
-def simulate_robot(map: Map, robots: Robots) -> int:
+def simulate_robot(map: Map, robots: Robots, H: int, W: int) -> int:
     place_robots(map, robots)
 
-    print(f"Initial position ->")
+    print(f"Initial robots position ->")
     print_map(map)
 
-    for i in range(6):
-        move_robots(map, robots)
+    for i in range(100):
+        move_robots(map, robots, H, W)
+
         print(f"\nAfter {i + 1} turn ->")
         print_map(map)
 
-    print_map(map)
     return 0
 
 def main():
     robots = get_robots()
     map, H, W = create_map()
+    print('initial map ->')
     print_map(map)
+    print('initial robots ->')
     print_robots(robots)
-    safety_factor: int = simulate_robot(map, robots)
+    safety_factor: int = simulate_robot(map, robots, H, W)
     print(f"part 1 : {safety_factor}")
 
 if __name__ == '__main__':
