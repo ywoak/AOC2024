@@ -81,11 +81,15 @@ def get_quarters(map: Map, H: int, W: int) -> Quarters:
 
 def get_safety_factor(quarters: Quarters) -> int:
     """ Multiply number of robots in each quarter """
-    safety_factor = 0
+    safety_factor = 1
+
     for quarter in quarters:
+        sum_quarter = 0
         for R in quarter:
             for elem in R:
-                safety_factor += elem
+                sum_quarter += elem
+
+        safety_factor *= sum_quarter
 
     return safety_factor
 
