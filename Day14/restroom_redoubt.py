@@ -1,17 +1,17 @@
 import re
 
-type Robot = tuple[int, int, int, int]
+type Robot = tuple[int, ...]
 type Robots = list[Robot]
 
 type Map = list[list[int]]
 
-# px, py = position from top left 0, 0
-# vx, vy = mouvement every second, positive y means right, positive x means down
+# (px, py, vx, vy) for each robot
 def get_robots() -> Robots:
     input: str = open(0).read()
     return [
-        tuple(
-            num for num in re.findall(r'[-]\d+|\d+', robot)
+        tuple
+        (
+            int(num) for num in re.findall(r'[-]\d+|\d+', robot)
         )
         for robot in input.strip().split('\n')
     ]
@@ -35,13 +35,21 @@ def print_robots(robots: Robots) -> None:
 
 def place_robots(map: Map, robots: Robots):
     for robot in robots:
-        px = int(robot[1])
-        py = int(robot[0])
+        px = robot[1]
+        py = robot[0]
 
         map[px][py] += 1
 
-# Robots wrap around the map, they teleport
+def move_robots(map: Map, robots: Robots):
+    for robot in robots:
+        mx = robot[2]
+        my = robot[3]
+        print(f"mx -> {mx}, my -> {my}")
+
+# px, py = position from top left 0, 0
+# vx, vy = mouvement every second, positive y means right, positive x means down
 # Invert x/y
+# Robots wrap around the map, they teleport
 # Simulte robot for initial state and 100 second (one turn = one second)
 # Divide final positions in quarter, ignore middle band
 # Multiply number of robot in each quarter
