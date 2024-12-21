@@ -7,12 +7,14 @@ type Map = list[list[int]]
 type Quarter = Map
 type Quarters = tuple[Quarter, Quarter, Quarter, Quarter]
 
+# Global to re use for part2
+input: str = open(0).read()
+
 def get_robots() -> Robots:
     """
     Get data for each robot:
     [px, py, vx, vy]
     """
-    input: str = open(0).read()
     return [
         [
             int(num) for num in re.findall(r'[-]\d+|\d+', robot)
@@ -26,6 +28,7 @@ def create_map() -> tuple[Map, int, int]:
     H, W for test -> 7, 11
     H, W for input -> 103, 101
     """
+    #H, W = 7, 11
     H, W = 103, 101
     map = []
     for _ in range(H):
@@ -33,10 +36,13 @@ def create_map() -> tuple[Map, int, int]:
     return map, H, W
 
 def print_map(map: Map) -> None:
-    """ Debugging fonction to print map """
-    print('\n')
+    """
+    Fonction to print the map
+    We use it to display the easter egg
+    """
     for row in map:
         print(row)
+    print('\n')
 
 def print_robots(robots: Robots) -> None:
     """ Debugging fonction to print robots """
@@ -93,12 +99,38 @@ def get_safety_factor(quarters: Quarters) -> int:
 
     return safety_factor
 
-def simulate_robot(map: Map, robots: Robots, H: int, W: int) -> int:
-    """ Simulate the evolution of the robot path for 100s (1 turn = 1 second) """
+def is_easter_egg(map: Map) -> bool:
+    """
+    We eventually have an easter egg for part 2
+    The robots positions will display a tree shape
+    We dont actually need to check for the shape of a tree, its the only time where the robots each has a unique position
+
+    (That's not true for the tests cases, its only true for the actual robots)
+    """
+    for R in map:
+        for tile in R:
+            if (tile >= 2):
+                return False
+    return True
+
+def simulate_robot(map: Map, robots: Robots, H: int, W: int, part2: bool) -> int:
+    """
+    Simulate the evolution of the robot in their map (1 loop turn = 1 second)
+    For part1 simulate 100s, get quarters, and get the safety factor out of them
+    For part2 simulate until we meet the easter egg, a tree shape
+    """
     place_robots(map, robots)
 
-    for _ in range(100):
-        move_robots(map, robots, H, W)
+    if part2:
+        for i in range(10000):
+            move_robots(map, robots, H, W)
+
+            if (is_easter_egg(map)):
+                print_map(map)
+                return i + 1
+    else:
+        for i in range(100):
+            move_robots(map, robots, H, W)
 
     quarters: Quarters = get_quarters(map, H, W)
     safety_factor: int = get_safety_factor(quarters)
@@ -107,11 +139,15 @@ def simulate_robot(map: Map, robots: Robots, H: int, W: int) -> int:
 
 def main():
     map, H, W = create_map()
-    robots = get_robots()
+    robots: Robots = get_robots()
+    safety_factor: int = simulate_robot(map, robots, H, W, part2=False)
 
-    safety_factor: int = simulate_robot(map, robots, H, W)
+    map, H, W = create_map()
+    robots: Robots = get_robots()
+    easter_egg_seconds: int = simulate_robot(map, robots, H, W, part2=True)
 
-    print(f"part 1 : {safety_factor}")
+    print(f"part 1: {safety_factor}")
+    print(f"Part 2: {easter_egg_seconds}")
 
 if __name__ == '__main__':
     main()
