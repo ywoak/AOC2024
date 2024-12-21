@@ -24,9 +24,9 @@ def create_map() -> tuple[Map, int, int]:
     """
     Initial creation of the map
     H, W for test -> 7, 11
-    H, W for input -> 103, 111
+    H, W for input -> 103, 101
     """
-    H, W = 7, 11
+    H, W = 103, 101
     map = []
     for _ in range(H):
         map.append([0] * W)
