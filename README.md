@@ -21,3 +21,4 @@ Interesting notes about learning points / challenge / thoughts about each days:
 - Day12 => My best code until now, nice and simple solution to know how many side a shape has in part2, an overall really fast solution (0.1s on input without Pypy)
 - Day13 => The list comprehension and generator expression used for parsing the input is clean ! Starting to love this feature the most out of python
 - D13p2 => Required mathematical help from friend, and Rational from sympy to avoid approximating rational numbers
+- Day14 => Nothing particularly interesting nor challenging today, straight forward programming, the parsing comprehension was nice and reading was done with `open(0)` to use with Utils/aoc.py
