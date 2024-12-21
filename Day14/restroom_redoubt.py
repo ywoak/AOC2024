@@ -55,6 +55,13 @@ def move_robots(map: Map, robots: Robots, H: int, W: int):
         robot[0] = nx
         robot[1] = ny
 
+def get_quarters(map: Map, H: int, W: int) -> tuple[Map, Map, Map, Map]:
+    first_quarter = [half_row[:W // 2] for half_row in map[:H // 2]]
+    second_quarter = [half_row[W // 2 + 1:] for half_row in map[:H // 2]]
+    third_quarter = [half_row[:W // 2] for half_row in map[H // 2 + 1:]]
+    fourth_quarter = [half_row[W // 2 + 1:] for half_row in map[H // 2 + 1:]]
+    return first_quarter, second_quarter, third_quarter, fourth_quarter
+
 # px, py = position from top left 0, 0
 # vx, vy = mouvement every second, positive y means right, positive x means down
 # Invert x/y
@@ -76,7 +83,14 @@ def simulate_robot(map: Map, robots: Robots, H: int, W: int) -> int:
         print(f"\nAfter {i + 1} turn ->")
         print_map(map)
 
-    return 0
+    quarters: tuple[Map, Map, Map, Map] = get_quarters(map, H, W)
+    result = get_results()
+    for quarter in quarters:
+        x, y = 0, 0
+
+        print(f"quarter -> {quarter}")
+
+    return result
 
 def main():
     robots = get_robots()
