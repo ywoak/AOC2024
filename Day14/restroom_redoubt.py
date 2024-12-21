@@ -5,7 +5,7 @@ type Robots = list[Robot]
 
 type Map = list[list[int]]
 
-# px, py = position from top left 0,0
+# px, py = position from top left 0, 0
 # vx, vy = mouvement every second, positive y means right, positive x means down
 def get_robots() -> Robots:
     input: str = open(0).read()
@@ -19,9 +19,8 @@ def get_robots() -> Robots:
 def create_map() -> tuple[Map, int, int]:
     H, W = 7, 11
     map = []
-    width = [0] * W
     for _ in range(H):
-        map.append(width)
+        map.append([0] * W)
     return map, H, W
 
 def print_map(map: Map) -> None:
@@ -36,13 +35,10 @@ def print_robots(robots: Robots) -> None:
 
 def place_robots(map: Map, robots: Robots):
     for robot in robots:
-        ipx, ipy, ivx, ivy = robot
-        px = int(ipx)
-        py = int(ipy)
+        px = int(robot[1])
+        py = int(robot[0])
 
-        print(f'px, py => {px, py}')
         map[px][py] += 1
-        print_map(map)
 
 # Robots wrap around the map, they teleport
 # Invert x/y
@@ -51,6 +47,14 @@ def place_robots(map: Map, robots: Robots):
 # Multiply number of robot in each quarter
 def simulate_robot(map: Map, robots: Robots) -> int:
     place_robots(map, robots)
+
+    print(f"Initial position ->")
+    print_map(map)
+
+    for i in range(6):
+        move_robots(map, robots)
+        print(f"\nAfter {i + 1} turn ->")
+        print_map(map)
 
     print_map(map)
     return 0
