@@ -22,3 +22,4 @@ Interesting notes about learning points / challenge / thoughts about each days:
 - Day13 => The list comprehension and generator expression used for parsing the input is clean ! Starting to love this feature the most out of python
 - D13p2 => Required mathematical help from friend, and Rational from sympy to avoid approximating rational numbers
 - Day14 => Nothing particularly interesting nor challenging today, straight forward programming, the parsing comprehension was nice and reading was done with `open(0)` to use with Utils/aoc.py
+- Day15 => IRL is taking some times, in the interest of time i will probably finish this challenge with part 1 only for now, and revisit part 2 for day 15-25 later
