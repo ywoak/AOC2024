@@ -44,15 +44,24 @@ def execute_command(map: list[list[str]], commands: str, pos: Position):
 
         x, y = inx, iny
 
+def get_gps_score(map: list[list[str]]):
+    score = 0
+    for x in range(len(map)):
+        for y in range(len(map[0])):
+            if map[x][y] == 'O':
+                score += 100 * x + y
+    return score
+
 def main():
     map, commands = parse_input()
     pos: Position = find_player(map)
     execute_command(map, commands, pos)
-    #get_gps_score(map)
+    score: int = get_gps_score(map)
 
     print(map, end="\n\n")
     print(commands, end="\n\n")
     print(pos, end="\n\n")
+    print(f"Part 1: {score}")
 
 if __name__ == "__main__":
     main()
