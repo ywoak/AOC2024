@@ -1,6 +1,3 @@
-import enum
-
-
 type Position = tuple[int, int]
 
 def parse_input() -> tuple[list[list[str]], str]:
@@ -23,29 +20,30 @@ def execute_command(map: list[list[str]], commands: str, pos: Position):
 
     dirs: dict[str, Position] = {'^': (-1, 0), 'v': (1, 0), '>': (0, 1), '<': (0, -1)}
     for command in commands:
+        print(f"\nMove {command}:")
         dx, dy = dirs[command]
-        print(f"dir is {dir}")
-        # get command
-        # on regarde dans la bonne direction, si c'est un point on avance
-        # Si c'est un obstacle on les depasse, si c'est un point apres on switch
-        # Si c'est un mur on passe a la commande suivante
         nx, ny = inx, iny = x + dx, y + dy
         obstacle = False
         while (map[nx][ny] == 'O'):
-            nx += 1
-            ny += 1
+            print('Here')
+            nx += dx
+            ny += dy
             obstacle = True
-        if (map[nx][ny] == '#'): continue
+        if (map[nx][ny] == '#'):
+            for r in map: print(r)
+            continue
         if obstacle:
+            print(f'Obstacle was true with nx, ny {nx, ny}')
             map[nx][ny] = 'O'
-            map[inx][iny] = '@'
-            map[x][y] = '.'
             obstacle = False
 
+        map[x][y] = '.'
+        map[inx][iny] = '@'
         x, y = inx, iny
+        for row in map: print(row)
 
-def get_gps_score(map: list[list[str]]):
-    score = 0
+def get_gps_score(map: list[list[str]]) -> int:
+    score: int = 0
     for x in range(len(map)):
         for y in range(len(map[0])):
             if map[x][y] == 'O':
@@ -57,10 +55,8 @@ def main():
     pos: Position = find_player(map)
     execute_command(map, commands, pos)
     score: int = get_gps_score(map)
+    for row in map: print(row)
 
-    print(map, end="\n\n")
-    print(commands, end="\n\n")
-    print(pos, end="\n\n")
     print(f"Part 1: {score}")
 
 if __name__ == "__main__":
