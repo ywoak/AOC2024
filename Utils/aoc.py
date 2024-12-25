@@ -40,11 +40,11 @@ def run_input():
             [sys.executable, get_python_file()],
             input=open(input_file).read(),
             text=True,
-            capture_output=True,
+            capture_output=False,
             env={**os.environ, 'PYTHONPATH': os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'Utils'))}
         )
 
-        print(f"{BLUE}{result.stdout}{RESET}")
+        #print(f"{BLUE}{result.stdout}{RESET}")
         if result.stderr:
             print(f"{RED}{result.stderr}{RESET}")
     else:

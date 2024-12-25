@@ -10,6 +10,26 @@ type Map = list[list[str]]
 
 type ScoreDict = dict[int, int]
 
+class OrderedSet:
+    def __init__(self):
+        self.items = []
+        self.set = set()
+
+    def add(self, item):
+        if item not in self.set:
+            self.items.append(item)
+            self.set.add(item)
+
+    def __contains__(self, item):
+        return item in self.set
+
+    def __iter__(self):
+        return iter(self.items)
+
+    def __len__(self):
+        return len(self.items)
+
+
 def load_map() -> Map:
     return [
         [char for char in line]
@@ -29,20 +49,32 @@ def find_start_and_end(map: Map, H: int, W: int) -> tuple[Position, Position]:
     return start, end
 
 def solve_maze(map: Map, start: Position, end: Position) -> Paths:
-    queue: deque[tuple[Position, Path]] = deque([(start, [start])])
+    queue: deque[tuple[Position, OrderedSet]] = deque()
+    initial_path = OrderedSet()
+    initial_path.add(start)
+    queue.append((start, initial_path))
+
     paths: Paths = []
 
+    print(f"We're solving the maze")
     while queue:
         (x, y), path = queue.popleft()
 
         if (x, y) == end:
-            paths.append(path)
+            paths.append(list(path.items))
+            print(f"We reached an end")
             continue
 
         for nx, ny in [(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]:
             if not (map[nx][ny] == '#' or (nx, ny) in path):
-                queue.append(((nx, ny), path + [(nx, ny)]))
+                cpy_path = OrderedSet()
+                cpy_path.items = path.items[:]
+                cpy_path.set = path.set.copy()
+                cpy_path.add((nx, ny))
 
+                queue.append(((nx, ny), cpy_path))
+
+    print(f"We solved the maze")
     return paths
 
 def color_map_with_path(map: Map, path: Positions):
