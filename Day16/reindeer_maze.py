@@ -122,6 +122,26 @@ def reconstruct_paths(parents, start, end):
 
     return all_paths
 
+def reconstruct_paths_optimized(parents, start, end):
+    all_paths = []
+    stack = [(end, [end], set([end]))]
+
+    while stack:
+        (x, y), path, visited = stack.pop()
+
+        if (x, y) == start:
+            all_paths.append(path[:])
+            #all_paths.append(path)
+            print(f"Reconstructed {len(all_paths)} paths")
+            continue
+
+        print(f"For current {x, y}, there is {len(parents[x][y])} parent")
+        for px, py in parents[x][y]:
+            if (px, py) not in visited:
+                stack.append(((px, py), path + [(px, py)], visited | {(px, py)}))
+
+    return all_paths
+
 def bfs_all_paths(map, start, end):
     """
     global visited doesn't allow to search all path
@@ -160,7 +180,7 @@ def bfs_all_paths(map, start, end):
     return parents
 
 # Expected result => 7036 & 11048
-# Test 4 expected result, 4 different path, got 3
+# Test 4 expected result, 4 different path, got 3 -> Solved
 def main():
     map: Map = load_map()
     H, W = len(map), len(map[0])
@@ -175,20 +195,21 @@ def main():
     parents = bfs_all_paths(map, start, end)
     print("Parents of end:", parents[end[0]][end[1]])
     for r in parents: print(r)
-    paths = reconstruct_paths(parents, start, end)
 
-    print(f"Found {len(paths)} paths:")
+    #paths = reconstruct_paths(parents, start, end)
+    #paths = reconstruct_paths_optimized(parents, start, end)
+
+    #print(f"Found {len(paths)} paths:")
     #for path in paths:
     #    print(path)
 
-    scores: ScoreDict = find_lowest_score(paths)
-    min_key = min(scores, key=lambda k: scores[k])
-    print(f"\nPart 1: {scores[min_key]}")
+    #scores: ScoreDict = find_lowest_score(paths)
+    #min_key = min(scores, key=lambda k: scores[k])
+    #print(f"\nPart 1: {scores[min_key]}")
 
-#    cpy_map = [[char for char in line] for line in map]
-#    color_map_with_path(cpy_map, paths[min_key])
-#    for r in cpy_map: print(r)
-
+    #cpy_map = [[char for char in line] for line in map]
+    #color_map_with_path(cpy_map, paths[min_key])
+    #for r in cpy_map: print(r)
 
 if __name__ == "__main__":
     main()
