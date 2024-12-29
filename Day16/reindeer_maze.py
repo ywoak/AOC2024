@@ -11,26 +11,6 @@ type Map = list[list[str]]
 
 type ScoreDict = dict[int, int]
 
-class OrderedSet:
-    def __init__(self):
-        self.items = []
-        self.set = set()
-
-    def add(self, item):
-        if item not in self.set:
-            self.items.append(item)
-            self.set.add(item)
-
-    def __contains__(self, item):
-        return item in self.set
-
-    def __iter__(self):
-        return iter(self.items)
-
-    def __len__(self):
-        return len(self.items)
-
-
 def load_map() -> Map:
     return [
         [char for char in line]
@@ -47,6 +27,7 @@ def find_start_and_end(map: Map, H: int, W: int) -> tuple[Position, Position]:
                 start = (x, y)
             elif map[x][y] == 'E':
                 end = (x, y)
+    assert start != (0, 0) and end != (0, 0), "The map is incorrect"
     return start, end
 
 def solve_maze(map: Map, start: Position, end: Position) -> Paths:
@@ -178,6 +159,38 @@ def bfs_all_paths(map, start, end):
                     parents[nx][ny].append((x, y))
 
     return parents
+
+import heapq
+
+def dijkstra(graph, start):
+    distances = {node: float('inf') for node in graph}
+    distances[start] = 0
+    pq = [(0, start)]  # (distance, node)
+
+    while pq:
+        current_distance, current_node = heapq.heappop(pq)
+
+        if current_distance > distances[current_node]:
+            continue
+
+        for neighbor, weight in graph[current_node].items():
+            distance = current_distance + weight
+
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                heapq.heappush(pq, (distance, neighbor))
+
+    return distances
+
+graph = {
+    'A': {'B': 1, 'C': 4},
+    'B': {'C': 2, 'D': 5},
+    'C': {'D': 1},
+    'D': {}
+}
+
+print(dijkstra(graph, 'A'))
+
 
 # Expected result => 7036 & 11048
 # Test 4 expected result, 4 different path, got 3 -> Solved
