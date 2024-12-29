@@ -4,6 +4,8 @@ import heapq
 type Position = tuple[int, int]
 type Positions = list[Position]
 
+type Distances = dict[Position, int]
+
 type Path = list[Position]
 type Paths = list[Positions]
 #type Paths = list[tuple[Position, ...]]
@@ -31,8 +33,8 @@ def find_start_and_end(map: Map, H: int, W: int) -> tuple[Position, Position]:
     assert start != (0, 0) and end != (0, 0), "The map is incorrect"
     return start, end
 
-def dijkstra(graph: Map, start: Position, end: Position) -> int:
-    distances = {node: float('inf') for node in graph}
+def dijkstra(graph: Map, distances: Distances, start: Position, end: Position) -> int:
+    distances: Distances = {node: float('inf') for node in graph}
     distances[start] = 0
     pq = [(0, start)]  # (distance, node)
     score = 0
