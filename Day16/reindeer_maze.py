@@ -1,14 +1,12 @@
-from collections import deque
 import heapq
 
 type Position = tuple[int, int]
 type Positions = list[Position]
 
-type Distances = dict[Position, int]
+type Distances = dict[Position, float | int]
 
 type Path = list[Position]
 type Paths = list[Positions]
-#type Paths = list[tuple[Position, ...]]
 
 type Map = list[list[str]]
 
@@ -20,9 +18,10 @@ def load_map() -> Map:
         for line in open(0).read().strip().split('\n')
     ]
 
-def find_start_and_end(map: Map, H: int, W: int) -> tuple[Position, Position]:
+def find_start_and_end(map: Map, H: int, W: int) -> tuple[Position, Position, Distances]:
     start: Position = (0, 0)
     end: Position = (0, 0)
+    distances: Distances = dict()
 
     for x in range(H):
         for y in range(W):
@@ -30,15 +29,16 @@ def find_start_and_end(map: Map, H: int, W: int) -> tuple[Position, Position]:
                 start = (x, y)
             elif map[x][y] == 'E':
                 end = (x, y)
+            distances[(x, y)] = float('inf')
     assert start != (0, 0) and end != (0, 0), "The map is incorrect"
-    return start, end
+    return start, end, distances
 
 def dijkstra(graph: Map, distances: Distances, start: Position, end: Position) -> int:
-    distances: Distances = {node: float('inf') for node in graph}
     distances[start] = 0
-    pq = [(0, start)]  # (distance, node)
+    pq = [(0, start)] # (distance, node)
     score = 0
 
+    # For each position, determine distance
     while pq:
         current_distance, current_node = heapq.heappop(pq)
 
@@ -52,7 +52,7 @@ def dijkstra(graph: Map, distances: Distances, start: Position, end: Position) -
                 distances[neighbor] = distance
                 heapq.heappush(pq, (distance, neighbor))
 
-    return distances
+    return score
 
 # Expected result => 7036 & 11048
 # Test 4 expected result, 4 different path, got 3 -> Solved
@@ -61,10 +61,10 @@ def main():
     H, W = len(map), len(map[0])
     for r in map: print(r)
 
-    start, end = find_start_and_end(map, H, W)
+    start, end, distances = find_start_and_end(map, H, W)
     print(f"Start is {start}, end is {end}")
 
-    dijkstra(map, start, end)
+    dijkstra(map, distances, start, end)
 
 if __name__ == "__main__":
     main()
