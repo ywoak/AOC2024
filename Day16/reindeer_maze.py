@@ -35,17 +35,24 @@ def find_start_and_end(map: Map, H: int, W: int) -> tuple[Position, Position, Di
 
 def dijkstra(graph: Map, distances: Distances, start: Position, end: Position) -> int:
     distances[start] = 0
-    pq = [(0, start)] # (distance, node)
-    score = 0
+    print(f"Distance after setting start is {distances}")
+    pq: list[tuple[int, Position]] = [(0, start)] # (distance, node)
+    score: int = 0
 
     # For each position, determine distance
     while pq:
         current_distance, current_node = heapq.heappop(pq)
+        x, y = current_node
 
         if current_distance > distances[current_node]:
             continue
 
-        for neighbor, weight in graph[current_node].items():
+        # Get neighbor and weight,
+        # either do it with x, y destructur to reach all 4 neighbor
+        # And then grab the weight depending on the direction we're looking
+        # Or keep graph(current_node).items() but then modify graph, to have an adjacency list
+        # Instead of the current map with only str without weight to destructur
+        for neighbor, weight in graph[x][y]:
             distance = current_distance + weight
 
             if distance < distances[neighbor]:
@@ -62,7 +69,7 @@ def main():
     for r in map: print(r)
 
     start, end, distances = find_start_and_end(map, H, W)
-    print(f"Start is {start}, end is {end}")
+    print(f"Start is {start}, end is {end}\n distance is {distances}")
 
     dijkstra(map, distances, start, end)
 
