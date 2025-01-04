@@ -60,6 +60,7 @@ def dijkstra(graph: Map, distances: Distances, start: Position, end: Position) -
         # Keep a current direction, one starting west
 
         # for neighbor, weight in graph[x][y]:
+        # 
         for dx, dy in (directions[cur_dir+1], directions[cur_dir-1]):
             nx, ny = x + dx, y + dy
             # if we're looking 90 degree, so current direction +1 or -1
@@ -71,6 +72,20 @@ def dijkstra(graph: Map, distances: Distances, start: Position, end: Position) -
             if distance < distances[neighbor]:
                 distances[neighbor] = distance
                 heapq.heappush(pq, (distance, neighbor))
+
+        # Perhaps duplicate with only one other direction, because we have a direction im not sure if we need to check the 4 directions
+        # We can never do a 180 degree
+        dx, dy = (directions[cur_dir])
+        nx, ny = x + dx, y + dy
+        # if we're looking 90 degree, so current direction +1 or -1
+        # weight is 1000
+        # Else weight is 1
+
+        distance = current_distance + weight
+
+        if distance < distances[neighbor]:
+            distances[neighbor] = distance
+            heapq.heappush(pq, (distance, neighbor))
 
     return score
 
