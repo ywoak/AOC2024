@@ -35,20 +35,20 @@ def find_start_and_end(map: Map, H: int, W: int) -> tuple[Position, Position, Di
 
 def dijkstra(graph: Map, distances: Distances, start: Position, end: Position) -> int | float:
     distances[start] = 0
-    pq: list[tuple[int, Position]] = [(0, start)] # (distance, node)
-    score: int = 0
+    cur_dir: int = 1 # Starting position is East
+    pq: list[tuple[int, Position, int]] = [(0, start, cur_dir)] # (distance, node, direction)
 
     # Keep 90 degre rotation close to each other for 4 rotations, to always have dir +1/-1
-    # Keep a current direction, one starting west
-    directions: Positions = [(1, 0), (0, 1), (-1, 0), (0, -1)]
-    cur_dir: int = 1
+    directions: Positions = [(1, 0), (0, 1), (-1, 0), (0, -1)] # South, East, North, West
 
     # For each position, determine distance
     while pq:
-        current_distance, current_node = heapq.heappop(pq)
+        current_distance, current_node, cur_dir = heapq.heappop(pq)
         x, y = current_node
 
+        print(f"\nIm at position {x, y}")
         if current_distance > distances[current_node]: continue
+        if (x, y) == end: continue
 
         # Get neighbor and weight,
 
@@ -59,7 +59,7 @@ def dijkstra(graph: Map, distances: Distances, start: Position, end: Position) -
         # Instead of the current map with only str without weight to destructur
 
         # for neighbor, weight in graph[x][y]:
-        for dx, dy in (directions[cur_dir + 1], directions[cur_dir - 1], directions[cur_dir]):
+        for dx, dy in (directions[cur_dir], directions[(cur_dir + 1) % 4], directions[(cur_dir - 1) % 4]):
             nx, ny = x + dx, y + dy
             # Check for out of bound
             if graph[nx][ny] == '#': continue
@@ -68,14 +68,23 @@ def dijkstra(graph: Map, distances: Distances, start: Position, end: Position) -
             # weight is 1000
             weight = 1000
             # Else weight is 1
-            if (dx, dy == directions[cur_dir]):
+            print(f"\nIm looking at direction {nx, ny}")
+            print(f"cur_dir is {cur_dir}")
+            if ((dx, dy) == directions[cur_dir]):
                 weight = 1
 
+            if (dx, dy) == directions[(cur_dir + 1) % 4]:
+                cur_dir = (cur_dir + 1) % 4
+            elif (dx, dy) == directions[(cur_dir - 1) % 4]:
+                cur_dir = (cur_dir - 1) % 4
+
             distance = current_distance + weight
+            print(f"weight is {weight}, so new distance is {distance}")
+            print(f"Old distance is {distances[(nx, ny)]}")
 
             if distance < distances[(nx, ny)]:
                 distances[(nx, ny)] = distance
-                heapq.heappush(pq, (distance, (nx, ny)))
+                heapq.heappush(pq, (distance, (nx, ny), cur_dir))
 
     print(f"Distances after dijkstra is:\n")
     for key, val in distances.items():
