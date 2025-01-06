@@ -48,7 +48,7 @@ def dijkstra(graph: Map, distances: Distances, start: Position, end: Position) -
 
         print(f"\nIm at position {x, y}")
         if current_distance > distances[current_node]: continue
-        if (x, y) == end: continue
+        if (x, y) == end: break
 
         # Get neighbor and weight,
 
@@ -66,17 +66,17 @@ def dijkstra(graph: Map, distances: Distances, start: Position, end: Position) -
 
             # if we're looking 90 degree, so current direction +1 or -1
             # weight is 1000
-            weight = 1000
             # Else weight is 1
+            weight = 1001 if (dx, dy) != directions[cur_dir] else 1
             print(f"\nIm looking at direction {nx, ny}")
             print(f"cur_dir is {cur_dir}")
-            if ((dx, dy) == directions[cur_dir]):
-                weight = 1
 
             if (dx, dy) == directions[(cur_dir + 1) % 4]:
-                cur_dir = (cur_dir + 1) % 4
+                next_dir = (cur_dir + 1) % 4
             elif (dx, dy) == directions[(cur_dir - 1) % 4]:
-                cur_dir = (cur_dir - 1) % 4
+                next_dir = (cur_dir - 1) % 4
+            else:
+                next_dir = cur_dir
 
             distance = current_distance + weight
             print(f"weight is {weight}, so new distance is {distance}")
@@ -84,7 +84,7 @@ def dijkstra(graph: Map, distances: Distances, start: Position, end: Position) -
 
             if distance < distances[(nx, ny)]:
                 distances[(nx, ny)] = distance
-                heapq.heappush(pq, (distance, (nx, ny), cur_dir))
+                heapq.heappush(pq, (distance, (nx, ny), next_dir))
 
     print(f"Distances after dijkstra is:\n")
     for key, val in distances.items():
