@@ -26,3 +26,17 @@ Interesting notes about learning points / challenge / thoughts about each days:
 - Day16 => Getting all possible way to the end, reconstructing each path and then checking the highest score, works well for test input but a bit too slow for real input
 - ..... - Instead I implemented it with a Dijkstra, result is 0.09s with the actual input, instead of an adjacency list, got the weight of each edges for each vertices depending on the direction we're looking, and keeping a relative direction for each path
 - Day17 => Modulo 8 is equivalent to & 7 (b111), we keep only the last 3 bit
+
+Conclusion =>
+For this year im ending it at Day17, this challenge is proving to take a lot of time in the month
+Overall i learned :
+- To be more skilled and efficient when writing Python codes
+- To think and solve competitive programming type of problems
+- The whole sub category of Graph and Graph algorithm, at least for the useful basis, BFS, DFS, Dijkstra ...
+- How to make various algorithm faster
+- The basis of C# for the first 3 days
+- Some array manipulation and other miscellaneous tips
+
+And it was fun !
+
+So definitely not a waste of time, Will come back to do more for AoC 2025
